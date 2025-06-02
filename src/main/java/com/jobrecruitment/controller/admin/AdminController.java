@@ -34,7 +34,7 @@ public class AdminController {
         List<Company> pendingCompanies = companyService.getPendingCompanies();
         model.addAttribute("pendingCompanies", pendingCompanies);
 
-        return "admin/admin-dashboard";
+        return "admin/dashboard";
     }
 
     @PostMapping("/approve-company/{id}")
@@ -50,7 +50,7 @@ public class AdminController {
         int adminId = adminUser.getId().intValue();
 
         companyService.approveCompany(id, adminId);
-        return "redirect:/admin/admin-dashboard";
+        return "redirect:/admin/dashboard";
     }
 
     @PostMapping("/reject-company/{id}")
@@ -62,6 +62,6 @@ public class AdminController {
         }
 
         companyService.rejectCompany(id);
-        return "redirect:/admin/admin-dashboard";
+        return "redirect:/admin/dashboard";
     }
 }

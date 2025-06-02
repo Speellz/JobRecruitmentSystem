@@ -19,9 +19,6 @@
                     </label>
                 </div>
             </sec:authorize>
-
-            <a href="<%= request.getContextPath() %>/jobs.jsp">Jobs</a>
-            <a href="<%= request.getContextPath() %>/about.jsp">About</a>
         </div>
     </div>
 
@@ -46,13 +43,21 @@
             <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
         </sec:authorize>
 
+        <sec:authorize access="hasAuthority('RECRUITER')">
+            <a href="<%= request.getContextPath() %>/recruiter/dashboard">Recruiter Dashboard</a>
+            <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
+        </sec:authorize>
+
+
         <sec:authorize access="hasAuthority('APPLICANT')">
             <a href="<%= request.getContextPath() %>/dashboard">Applicant Dashboard</a>
             <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
         </sec:authorize>
 
         <sec:authorize access="hasAuthority('ADMIN')">
-            <a href="<%= request.getContextPath() %>/admin/dashboard">Admin Dashboard</a>
+            <a href="<%= request.getContextPath() %>/admin/admin-dashboard">Pending Companies</a>
+            <a href="<%= request.getContextPath() %>/admin/users">Manage Users</a>
+            <a href="<%= request.getContextPath() %>/admin/companies">Companies</a>
             <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
         </sec:authorize>
     </div>

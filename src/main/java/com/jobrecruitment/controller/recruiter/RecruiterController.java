@@ -2,6 +2,7 @@ package com.jobrecruitment.controller.recruiter;
 
 import com.jobrecruitment.model.Recruiter;
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,23 @@ public class RecruiterController {
     @Autowired
     private RecruiterService recruiterService;
 
+    @Autowired
+    private BranchService branchService;
+
     @GetMapping("/add")
-    public String showRecruiterForm(Model model) {
+    public String showRecruiterForm(Model model, HttpSession session) {
+        User owner = (User) session.getAttribute("loggedInUser");
+
+        if (owner == null || owner.getCompany() == null) {
+            model.addAttribute("error", "Unauthorized access.");
+            return "error";
+        }
+
         model.addAttribute("recruiter", new Recruiter());
+        model.addAttribute("branches", branchService.getBranchesByCompanyId(owner.getCompany().getId()));
         return "add-recruiter";
     }
+
 
     @PostMapping("/add")
     public String addRecruiter(@ModelAttribute Recruiter recruiter,
@@ -38,6 +51,7 @@ public class RecruiterController {
         }
 
         recruiter.setCompany(owner.getCompany());
+
         boolean success = recruiterService.addRecruiter(recruiter);
 
         if (!success) {
@@ -47,5 +61,6 @@ public class RecruiterController {
 
         return "redirect:/company/dashboard";
     }
+
 }
 

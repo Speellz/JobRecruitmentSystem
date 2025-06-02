@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -69,5 +71,33 @@ public class BranchController {
     public String deleteBranch(@PathVariable Integer id) {
         branchService.deleteBranch(id);
         return "redirect:/company/branches";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String editBranch(@PathVariable Integer id, Model model) {
+        Branch branch = branchService.getBranchById(id);
+        model.addAttribute("branch", branch);
+        return "company/edit-branch";
+    }
+
+    @PostMapping("/update")
+    public String updateBranch(@ModelAttribute Branch branch) {
+        branchService.updateBranch(branch);
+        return "redirect:/company/branches";
+    }
+    @GetMapping("/detail/{id}")
+    public String viewBranchDetail(@PathVariable Integer id, Model model) {
+        Branch branch = branchService.getBranchById(id);
+        if (branch == null) {
+            return "redirect:/company/branches";
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        String formattedCreatedAt = branch.getCreatedAt().format(formatter);
+
+        model.addAttribute("branch", branch);
+        model.addAttribute("formattedCreatedAt", formattedCreatedAt);
+
+        return "company/branch-detail";
     }
 }

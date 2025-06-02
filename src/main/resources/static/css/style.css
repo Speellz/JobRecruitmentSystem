@@ -253,6 +253,72 @@ body {
     color: #155724;
 }
 
+.button-blue {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-blue:hover {
+    background-color: #1d4ed8;
+}
+.button-red {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-red:hover {
+    background-color: #dc2626;
+}
+
+.input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.branch-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-top: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+.branch-info {
+    font-weight: 500;
+}
+.branch-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.branch-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 
 input#roleToggle:checked + label .toggle-thumb {
     left: 120px;

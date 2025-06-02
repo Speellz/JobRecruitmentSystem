@@ -1,5 +1,6 @@
 package com.jobrecruitment.model;
 
+import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.model.company.Company;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

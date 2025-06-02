@@ -58,4 +58,8 @@ public class CompanyService {
         return company.orElse(null);
     }
 
+    public List<Company> getApprovedCompanies() {
+        return companyRepository.findByStatus("Approved");
+    }
+
 }

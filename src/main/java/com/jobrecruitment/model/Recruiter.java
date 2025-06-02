@@ -1,37 +1,35 @@
 package com.jobrecruitment.model;
 
+import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.model.company.Company;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+
+@Data
 @Entity
-@Table(name = "Recruiter")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "Recruiters")
 public class Recruiter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Column(nullable = false)
-    private String name;
+    private String role;
 
-    @Column(nullable = false)
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private User.Role role = User.Role.RECRUITER;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

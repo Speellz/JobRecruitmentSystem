@@ -30,6 +30,8 @@
                     <h2>Admin Panel</h2>
                     <p>Manage pending companies and platform settings.</p>
                     <a href="${pageContext.request.contextPath}/admin/admin-dashboard" class="button">Manage Companies</a>
+                    <a href="${pageContext.request.contextPath}/admin/users" class="button">Manage Users</a>
+                    <a href="${pageContext.request.contextPath}/admin/companies" class="button">View All Companies</a>
                 </div>
             </sec:authorize>
 
