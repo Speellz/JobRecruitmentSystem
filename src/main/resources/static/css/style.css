@@ -1,0 +1,363 @@
+/* General */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.page-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.panel {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.admin-panel {
+    border-left: 5px solid #dc3545;
+}
+
+.business-panel {
+    border-left: 5px solid #0d6efd;
+}
+
+.recruiter-panel {
+    border-left: 5px solid #198754;
+}
+
+.applicant-panel {
+    border-left: 5px solid #0dcaf0;
+}
+
+.guest-panel {
+    border-left: 5px solid #ffc107;
+}
+
+.button {
+    display: inline-block;
+    margin: 10px;
+    padding: 12px 20px;
+    background-color: #0a66c2;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.button:hover {
+    background-color: #004182;
+}
+
+/* Login ve Signup */
+.auth-container {
+    max-width: 400px;
+    width: 90%;
+    margin: 100px auto;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.auth-container h2 {
+    margin-bottom: 20px;
+    color: #0a66c2;
+}
+
+.auth-container input {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.auth-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #0a66c2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.auth-container button:hover {
+    background-color: #004182;
+}
+
+.auth-container a {
+    display: block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #0a66c2;
+    font-size: 14px;
+}
+
+.auth-container a:hover {
+    text-decoration: underline;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-left a {
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #0a66c2;
+    margin-right: 15px;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar-links a {
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar-links a:hover {
+    color: #0a66c2;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.navbar-right a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.navbar-right a:hover {
+    color: #0a66c2;
+}
+
+.navbar-right .signup-btn {
+    background-color: #0a66c2;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.navbar-right .signup-btn:hover {
+    background-color: #004182;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 240px;
+    height: 40px;
+    margin-left: 20px;
+}
+
+.toggle-switch input {
+    display: none;
+}
+
+.toggle-track {
+    background-color: #e0e0e0;
+    border-radius: 40px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    position: relative;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 115px;
+    height: 34px;
+    background-color: #ffa500;
+    border-radius: 20px;
+    transition: left 0.3s ease;
+}
+
+.toggle-option {
+    z-index: 2;
+    color: #333;
+    width: 50%;
+    text-align: center;
+    user-select: none;
+}
+
+.alert {
+    padding: 10px;
+    margin: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+.alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+.alert.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.button-blue {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-blue:hover {
+    background-color: #1d4ed8;
+}
+.button-red {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-red:hover {
+    background-color: #dc2626;
+}
+
+.input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.branch-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin-top: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+.branch-info {
+    font-weight: 500;
+}
+.branch-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.branch-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+input#roleToggle:checked + label .toggle-thumb {
+    left: 120px;
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .navbar-links {
+        margin-top: 10px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .navbar-right {
+        margin-top: 10px;
+    }
+
+    .auth-container {
+        width: 95%;
+        margin: 70px auto;
+    }
+
+    .toggle-switch {
+        width: 110px;
+        height: 35px;
+    }
+
+    .toggle-thumb {
+        width: 38px;
+        height: 30px;
+    }
+
+    input#roleToggle:checked + label .toggle-thumb {
+        left: 67px;
+    }
+}
