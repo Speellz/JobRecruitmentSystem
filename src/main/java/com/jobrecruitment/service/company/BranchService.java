@@ -45,14 +45,6 @@ public class BranchService {
         }
     }
 
-    public void assignManager(Integer branchId, User manager) {
-        Branch branch = branchRepository.findById(branchId).orElse(null);
-        if (branch != null) {
-            branch.setManager(manager);
-            branchRepository.save(branch);
-        }
-    }
-
     public void saveBranch(Branch branch) {
         branchRepository.save(branch);
     }
