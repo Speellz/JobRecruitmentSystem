@@ -18,6 +18,7 @@
     </c:if>
 
     <form action="<%= request.getContextPath() %>/perform_business_login" method="post">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <input type="email" name="username" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit">Login</button>

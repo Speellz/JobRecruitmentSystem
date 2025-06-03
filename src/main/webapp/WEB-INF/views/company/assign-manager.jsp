@@ -13,6 +13,7 @@
         <h2 style="text-align: center;">Assign Manager to ${branch.name}</h2>
 
         <form action="${pageContext.request.contextPath}/company/branches/update-manager/${branch.id}" method="post" style="margin-top: 20px;">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <label><strong>Select a recruiter:</strong></label>
             <select name="managerId" class="input" required style="width: 100%; margin-bottom: 20px;">
                 <option disabled selected>Select</option>

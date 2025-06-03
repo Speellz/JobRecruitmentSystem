@@ -42,6 +42,7 @@
                         <div class="panel company-add">
                             <h2>Register Your Company</h2>
                             <form action="${pageContext.request.contextPath}/company/add-company" method="post">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                 <input type="text" name="name" placeholder="Company Name" required>
                                 <input type="email" name="email" placeholder="Company Email" required>
                                 <input type="text" name="phone" placeholder="Phone" required>

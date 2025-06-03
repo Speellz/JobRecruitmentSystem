@@ -37,10 +37,12 @@
 
                 <div style="margin-top: 15px; display: flex; gap: 10px;">
                     <form action="${pageContext.request.contextPath}/admin/approve-company/${company.id}" method="post">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <button type="submit" class="button-blue">Approve</button>
                     </form>
 
                     <form action="${pageContext.request.contextPath}/admin/reject-company/${company.id}" method="post">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <button type="submit" class="button-red">Reject</button>
                     </form>
                 </div>
