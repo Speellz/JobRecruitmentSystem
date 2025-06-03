@@ -1,6 +1,6 @@
 package com.jobrecruitment.controller.recruiter;
 
-import com.jobrecruitment.model.Recruiter;
+import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.recruiter.RecruiterService;

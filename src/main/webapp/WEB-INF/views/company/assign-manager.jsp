@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Branch Details</title>
+    <title>Assign Manager</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <c:forEach var="recruiter" items="${recruiters}">
                     <option value="${recruiter.id}"
                             <c:if test="${branch.manager != null && recruiter.id == branch.manager.id}">selected</c:if>>
-                            ${recruiter.name} (${recruiter.email})
+                            ${recruiter.user.name} (${recruiter.user.email})
                     </option>
                 </c:forEach>
             </select>

@@ -1,6 +1,6 @@
 package com.jobrecruitment.controller.company;
 
-import com.jobrecruitment.model.Recruiter;
+import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.service.company.BranchService;
@@ -71,9 +71,14 @@ public class ManagerController {
         return "redirect:/company/managers";
     }
 
-    @PostMapping("/remove-manager/{branchId}")
-    public String removeManager(@PathVariable Integer branchId) {
-        branchService.removeManager(branchId);
+    @PostMapping("/remove-manager/{id}")
+    public String removeManager(@PathVariable("id") Integer branchId) {
+        Branch branch = branchService.getBranchById(branchId);
+        if (branch != null) {
+            branch.setManager(null);
+            branchService.updateBranch(branch);
+        }
         return "redirect:/company/managers";
     }
+
 }

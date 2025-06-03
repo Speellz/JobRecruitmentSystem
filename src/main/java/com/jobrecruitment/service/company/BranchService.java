@@ -1,6 +1,6 @@
 package com.jobrecruitment.service.company;
 
-import com.jobrecruitment.model.Recruiter;
+import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.repository.company.BranchRepository;

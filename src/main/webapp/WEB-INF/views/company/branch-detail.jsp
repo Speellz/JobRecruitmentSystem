@@ -35,7 +35,7 @@
                     <div class="panel branch-item" style="margin-bottom: 15px;">
                         <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
                         <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
-                        <p><strong>📞 Phone:</strong> ${recruiter.user.phone}</p>
+                        <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
                     </div>
                 </c:forEach>
             </c:when>

@@ -11,31 +11,35 @@
 <body>
 <div class="page-container">
     <h1 style="text-align:center; margin-bottom:30px;">Recruiters</h1>
+
     <div style="text-align: right; margin-bottom: 15px;">
         <a href="${pageContext.request.contextPath}/company/recruiters/add" class="button-blue">+ Add Recruiter</a>
     </div>
+
     <c:choose>
         <c:when test="${not empty branches}">
             <c:forEach var="branch" items="${branches}">
                 <h3 style="margin-top: 25px; margin-bottom: 12px;">${branch.name} (${branch.location})</h3>
-                <c:choose>
-                    <c:when test="${not empty recruiters}">
-                        <c:forEach var="recruiter" items="${recruiters}">
-                            <div class="panel branch-item" style="margin-bottom:10px;">
-                                <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
-                                <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
-                                <p><strong>📞 Phone:</strong> ${recruiter.user.phone}</p>
-                                <p><strong>🏢 Branch:</strong> ${recruiter.branch.name} (${recruiter.branch.location})</p>
-                                <form action="${pageContext.request.contextPath}/company/recruiters/delete/${recruiter.id}" method="post" style="display:inline;">
-                                    <button class="button-red" type="submit" onclick="return confirm('Are you sure?');">Delete</button>
-                                </form>
-                            </div>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <div class="panel" style="background-color: #f9f9f9; text-align:center;">No recruiters found.</div>
-                    </c:otherwise>
-                </c:choose>
+
+                <c:set var="found" value="false" />
+                <c:forEach var="recruiter" items="${recruiters}">
+                    <c:if test="${recruiter.branch.id == branch.id}">
+                        <c:set var="found" value="true" />
+                        <div class="panel branch-item" style="margin-bottom:10px;">
+                            <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
+                            <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
+                            <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
+                            <p><strong>🏢 Branch:</strong> ${recruiter.branch.name} (${recruiter.branch.location})</p>
+                            <form action="${pageContext.request.contextPath}/company/recruiters/delete/${recruiter.id}" method="post" style="display:inline;">
+                                <button class="button-red" type="submit" onclick="return confirm('Are you sure?');">Delete</button>
+                            </form>
+                        </div>
+                    </c:if>
+                </c:forEach>
+
+                <c:if test="${not found}">
+                    <div class="panel" style="background-color: #f9f9f9; text-align:center;">No recruiters found.</div>
+                </c:if>
             </c:forEach>
         </c:when>
         <c:otherwise>

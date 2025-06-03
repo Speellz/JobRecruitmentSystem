@@ -13,14 +13,14 @@
     <form action="${pageContext.request.contextPath}/company/recruiters/add" method="post" style="max-width:400px;margin:0 auto;">
         <label for="branchId">Select Branch:</label>
         <select name="branchId" id="branchId" required class="input" style="margin-bottom:15px;">
-            <option value="">Choose branch...</option>
+            <option value="" disabled selected>Choose branch...</option>
             <c:forEach var="branch" items="${branches}">
                 <option value="${branch.id}">${branch.name} (${branch.location})</option>
             </c:forEach>
         </select>
         <input type="text" name="user.name" placeholder="Name" required class="input" />
         <input type="email" name="user.email" placeholder="Email" required class="input" />
-        <input type="text" name="user.phone" placeholder="Phone" required class="input" />
+        <input type="text" name="phone" placeholder="Phone" required class="input" />
         <input type="password" name="user.password" placeholder="Password" required class="input" />
         <button type="submit" class="button-blue" style="width:100%;margin-top:16px;">Add Recruiter</button>
     </form>

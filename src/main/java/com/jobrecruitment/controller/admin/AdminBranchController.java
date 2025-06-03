@@ -1,8 +1,7 @@
 package com.jobrecruitment.controller.admin;
 
-import com.jobrecruitment.model.Recruiter;
+import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.company.Branch;
-import com.jobrecruitment.model.company.Company;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.company.CompanyService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 

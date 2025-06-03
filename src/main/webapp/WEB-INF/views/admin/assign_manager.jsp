@@ -10,10 +10,11 @@
 <body>
 <div class="page-container">
     <div class="panel company-panel" style="max-width: 500px; margin: 0 auto;">
-        <h2 style="text-align: center;">Assign Manager</h2>
-        <form action="${pageContext.request.contextPath}/admin/branches/${branch.id}/assign-manager" method="post">
-            <label for="managerRecruiterId"><strong>Select Manager from Branch Recruiters:</strong></label>
-            <select id="managerRecruiterId" name="managerRecruiterId" required class="input" style="margin: 16px 0;">
+        <h2 style="text-align: center;">Assign Manager to ${branch.name}</h2>
+
+        <form action="${pageContext.request.contextPath}/company/branches/update-manager/${branch.id}" method="post">
+            <label for="managerId"><strong>Select Manager from Branch Recruiters:</strong></label>
+            <select id="managerId" name="managerId" required class="input" style="margin: 16px 0;">
                 <option value="" disabled selected>Choose recruiter...</option>
                 <c:forEach var="recruiter" items="${recruiters}">
                     <option value="${recruiter.id}">
@@ -23,8 +24,9 @@
             </select>
             <button type="submit" class="button-blue">Assign as Manager</button>
         </form>
+
         <div style="margin-top: 15px;">
-            <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}" class="button">← Back to Branch</a>
+            <a href="${pageContext.request.contextPath}/company/branches" class="button">← Back to Branches</a>
         </div>
     </div>
 </div>

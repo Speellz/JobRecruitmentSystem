@@ -2,18 +2,18 @@ package com.jobrecruitment.controller.company;
 
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
+import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
-import jakarta.servlet.http.HttpSession;
+import com.jobrecruitment.service.recruiter.RecruiterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Controller
@@ -26,20 +26,18 @@ public class BranchController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RecruiterService recruiterService;
+
     @GetMapping
     public String listBranches(Model model, Principal principal) {
-        if (principal == null) {
-            return "redirect:/auth/login";
-        }
+        if (principal == null) return "redirect:/auth/login";
 
         User user = userService.findByEmail(principal.getName());
-        if (user == null || user.getCompany() == null) {
-            return "redirect:/";
-        }
+        if (user == null || user.getCompany() == null) return "redirect:/";
 
         List<Branch> branches = branchService.getBranchesByCompanyId(user.getCompany().getId());
         model.addAttribute("branches", branches);
-
         return "company/branches";
     }
 
@@ -47,14 +45,10 @@ public class BranchController {
     public String addBranch(@RequestParam String name,
                             @RequestParam String location,
                             Principal principal) {
-        if (principal == null) {
-            return "redirect:/auth/login";
-        }
+        if (principal == null) return "redirect:/auth/login";
 
         User user = userService.findByEmail(principal.getName());
-        if (user == null || user.getCompany() == null) {
-            return "redirect:/";
-        }
+        if (user == null || user.getCompany() == null) return "redirect:/";
 
         Branch branch = new Branch();
         branch.setName(name);
@@ -63,7 +57,6 @@ public class BranchController {
         branch.setCreatedAt(LocalDateTime.now());
 
         branchService.addBranch(branch);
-
         return "redirect:/company/branches";
     }
 
@@ -85,19 +78,33 @@ public class BranchController {
         branchService.updateBranch(branch);
         return "redirect:/company/branches";
     }
+
     @GetMapping("/detail/{id}")
     public String viewBranchDetail(@PathVariable Integer id, Model model) {
         Branch branch = branchService.getBranchById(id);
-        if (branch == null) {
-            return "redirect:/company/branches";
-        }
+        if (branch == null) return "redirect:/company/branches";
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        String formattedCreatedAt = branch.getCreatedAt().format(formatter);
+        List<Recruiter> recruiters = recruiterService.findByBranchId(id);
+        String formattedCreatedAt = branch.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
 
         model.addAttribute("branch", branch);
+        model.addAttribute("recruiters", recruiters);
         model.addAttribute("formattedCreatedAt", formattedCreatedAt);
-
         return "company/branch-detail";
+    }
+
+    @PostMapping("/update-manager/{id}")
+    public String updateManager(@PathVariable("id") Integer branchId,
+                                @RequestParam("managerId") Integer managerId) {
+
+        Branch branch = branchService.getBranchById(branchId);
+        Recruiter manager = recruiterService.getRecruiterById(managerId);
+
+        if (branch != null && manager != null) {
+            branch.setManager(manager.getUser());
+            branchService.updateBranch(branch);
+        }
+
+        return "redirect:/company/managers";
     }
 }
