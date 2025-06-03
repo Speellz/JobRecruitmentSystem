@@ -12,6 +12,7 @@
     <h2>Business Sign Up</h2>
 
     <form action="<%= request.getContextPath() %>/auth/business-signup" method="post">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     <input type="text" name="name" placeholder="Company Contact Name" required/>
         <input type="email" name="email" placeholder="Email" required/>
         <input type="password" name="password" placeholder="Password" required/>

@@ -8,6 +8,7 @@
     <h2>Edit User</h2>
 
     <form action="/admin/users/update" method="post" class="panel">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <input type="hidden" name="id" value="${user.id}" />
 
         <input type="text" name="name" class="input" placeholder="Name" value="${user.name}" required>

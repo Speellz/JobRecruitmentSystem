@@ -16,6 +16,7 @@
         <h2>Edit Branch</h2>
 
         <form:form method="post" action="${pageContext.request.contextPath}/company/branches/update" modelAttribute="branch">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <form:hidden path="id" />
             <div style="margin-bottom: 15px;">
                 <label>Name:</label><br>

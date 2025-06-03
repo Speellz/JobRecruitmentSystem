@@ -12,6 +12,7 @@
     <h2>Applicant Sign Up</h2>
 
     <form action="<%= request.getContextPath() %>/auth/signup" method="post">
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     <input type="text" name="name" placeholder="Name" required/>
         <input type="email" name="email" placeholder="Email" required/>
         <input type="password" name="password" placeholder="Password" required/>

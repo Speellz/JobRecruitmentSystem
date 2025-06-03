@@ -9,6 +9,7 @@
 
     <form action="/admin/users/create" method="post"
           style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <input type="text" name="name" placeholder="Name" class="input" style="flex: 1 1 200px;">
         <input type="email" name="email" placeholder="Email" class="input" style="flex: 1 1 200px;">
         <input type="password" name="password" placeholder="Password" class="input" style="flex: 1 1 200px;">
@@ -44,6 +45,7 @@
                     <td>
                         <a href="/admin/users/edit/${user.id}" class="button-blue">Edit</a>
                         <form action="/admin/users/delete/${user.id}" method="post" style="display:inline;">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                             <button type="submit" class="button-red" onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
                     </td>

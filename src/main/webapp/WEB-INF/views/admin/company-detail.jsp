@@ -36,6 +36,7 @@
         <div class="panel company-panel" style="max-width: 600px; margin: 30px auto; text-align: center;">
             <h3>Add New Branch</h3>
             <form action="${pageContext.request.contextPath}/admin/branches/add?companyId=${company.id}" method="post" style="text-align: left;">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
                 <div style="margin-bottom: 10px; display: flex; align-items: center;">
                     <label style="width: 100px;">Name:</label>
@@ -62,6 +63,7 @@
                 <div class="branch-actions" style="display: flex; gap: 10px; align-items: center;">
                     <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}" class="button-blue">View</a>
                     <form action="${pageContext.request.contextPath}/admin/branches/delete/${branch.id}" method="post" style="margin: 0;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <input type="hidden" name="companyId" value="${company.id}"/>
                         <button type="submit" class="button-red">Delete</button>
                     </form>

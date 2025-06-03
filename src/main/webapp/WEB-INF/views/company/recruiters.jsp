@@ -31,6 +31,7 @@
                             <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
                             <p><strong>🏢 Branch:</strong> ${recruiter.branch.name} (${recruiter.branch.location})</p>
                             <form action="${pageContext.request.contextPath}/company/recruiters/delete/${recruiter.id}" method="post" style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                 <button class="button-red" type="submit" onclick="return confirm('Are you sure?');">Delete</button>
                             </form>
                         </div>

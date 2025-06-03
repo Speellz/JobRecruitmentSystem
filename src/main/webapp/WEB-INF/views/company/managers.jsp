@@ -58,6 +58,7 @@
                                     <button class="button-blue" type="submit">Edit</button>
                                 </form>
                                 <form action="${pageContext.request.contextPath}/company/remove-manager/${branch.id}" method="post">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                     <button class="button-red" type="submit">Remove</button>
                                 </form>
                             </c:when>

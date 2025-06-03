@@ -11,6 +11,7 @@
 <div class="page-container">
     <h1 style="text-align:center; margin-bottom:30px;">Add Recruiter</h1>
     <form action="${pageContext.request.contextPath}/company/recruiters/add" method="post" style="max-width:400px;margin:0 auto;">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <label for="branchId">Select Branch:</label>
         <select name="branchId" id="branchId" required class="input" style="margin-bottom:15px;">
             <option value="" disabled selected>Choose branch...</option>

@@ -15,6 +15,7 @@
         <h2>Manage Branches</h2>
 
         <form action="${pageContext.request.contextPath}/company/branches/add" method="post" class="form-inline">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
             <input type="text" name="name" placeholder="Branch Name" required class="input">
             <input type="text" name="location" placeholder="Location" required class="input">
             <button class="button-blue" type="submit">Add Branch</button>
@@ -33,6 +34,7 @@
                                 <button class="button-blue" type="submit">Detail</button>
                             </form>
                             <form action="${pageContext.request.contextPath}/company/branches/delete/${branch.id}" method="post" style="display:inline;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                 <button class="button-red" type="submit">Delete</button>
                             </form>
                         </div>
