@@ -4,7 +4,8 @@ import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
-import jakarta.servlet.http.HttpSession;
+import java.security.Principal;
+import com.jobrecruitment.service.common.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,9 +24,13 @@ public class RecruiterController {
     @Autowired
     private BranchService branchService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/add")
-    public String showRecruiterForm(Model model, HttpSession session) {
-        User owner = (User) session.getAttribute("loggedInUser");
+    public String showRecruiterForm(Model model, Principal principal) {
+        if (principal == null) return "redirect:/auth/login";
+        User owner = userService.findByEmail(principal.getName());
 
         if (owner == null || owner.getCompany() == null) {
             model.addAttribute("error", "Unauthorized access.");
@@ -41,9 +46,10 @@ public class RecruiterController {
     @PostMapping("/add")
     public String addRecruiter(@ModelAttribute Recruiter recruiter,
                                Model model,
-                               HttpSession session) {
+                               Principal principal) {
 
-        User owner = (User) session.getAttribute("loggedInUser");
+        if (principal == null) return "redirect:/auth/login";
+        User owner = userService.findByEmail(principal.getName());
 
         if (owner == null || owner.getRole() != User.Role.COMPANY) {
             model.addAttribute("error", "Unauthorized access.");
