@@ -77,6 +77,21 @@
                     <h2>Recruiter Panel</h2>
                     <p>View and manage your job postings.</p>
                     <a href="${pageContext.request.contextPath}/recruiter/jobs" class="button">View Jobs</a>
+
+                    <h3 style="margin-top:30px;">My Company</h3>
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.userCompany}">
+                            <div class="company-info" style="text-align:left; max-width:600px; margin:0 auto;">
+                                <p><strong>🧾 Name:</strong> ${sessionScope.userCompany.name}</p>
+                                <p><strong>📧 Email:</strong> ${sessionScope.userCompany.email}</p>
+                                <p><strong>📞 Phone:</strong> ${sessionScope.userCompany.phone}</p>
+                                <p><strong>🌐 Website:</strong> <a href="${sessionScope.userCompany.website}" target="_blank">${sessionScope.userCompany.website}</a></p>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="alert error">No company information available.</div>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </sec:authorize>
 

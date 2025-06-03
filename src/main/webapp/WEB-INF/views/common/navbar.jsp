@@ -44,7 +44,6 @@
         </sec:authorize>
 
         <sec:authorize access="hasAuthority('RECRUITER')">
-            <a href="<%= request.getContextPath() %>/recruiter/dashboard">Recruiter Dashboard</a>
             <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
         </sec:authorize>
 

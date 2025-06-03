@@ -25,6 +25,7 @@ public class RecruiterController {
 
     private final UserService userService;
 
+
     @GetMapping("/add")
     public String showRecruiterForm(Model model, Principal principal) {
         if (principal == null) return "redirect:/auth/login";
