@@ -97,14 +97,7 @@ public class BranchController {
     public String updateManager(@PathVariable("id") Integer branchId,
                                 @RequestParam("managerId") Integer managerId) {
 
-        Branch branch = branchService.getBranchById(branchId);
-        Recruiter manager = recruiterService.getRecruiterById(managerId);
-
-        if (branch != null && manager != null) {
-            branch.setManager(manager.getUser());
-            branchService.updateBranch(branch);
-        }
-
+        branchService.assignManager(branchId, managerId);
         return "redirect:/company/managers";
     }
 }

@@ -73,11 +73,7 @@ public class ManagerController {
 
     @PostMapping("/remove-manager/{id}")
     public String removeManager(@PathVariable("id") Integer branchId) {
-        Branch branch = branchService.getBranchById(branchId);
-        if (branch != null) {
-            branch.setManager(null);
-            branchService.updateBranch(branch);
-        }
+        branchService.removeManager(branchId);
         return "redirect:/company/managers";
     }
 
