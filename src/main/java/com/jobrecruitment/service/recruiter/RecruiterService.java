@@ -6,19 +6,18 @@ import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.model.recruiter.RecruiterRole;
 import com.jobrecruitment.repository.UserRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RecruiterService {
 
-    @Autowired
-    private RecruiterRepository recruiterRepository;
+    private final RecruiterRepository recruiterRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public boolean addRecruiter(Recruiter recruiter) {
         if (userRepository.findByEmail(recruiter.getUser().getEmail()).isPresent()) {
