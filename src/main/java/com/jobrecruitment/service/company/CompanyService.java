@@ -3,17 +3,17 @@ package com.jobrecruitment.service.company;
 import com.jobrecruitment.model.company.Company;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.repository.company.CompanyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyService {
 
-    @Autowired
-    private CompanyRepository companyRepository;
+    private final CompanyRepository companyRepository;
 
     public boolean registerCompany(Company company, User owner) {
         if (companyRepository.findByEmail(company.getEmail()).isPresent()) {

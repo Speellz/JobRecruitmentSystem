@@ -10,10 +10,10 @@ import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -21,22 +21,18 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/company/recruiters")
+@RequiredArgsConstructor
 public class CompanyRecruiterController {
 
-    @Autowired
-    private RecruiterService recruiterService;
+    private final RecruiterService recruiterService;
 
-    @Autowired
-    private BranchService branchService;
+    private final BranchService branchService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RecruiterRepository recruiterRepository;
+    private final RecruiterRepository recruiterRepository;
 
     @GetMapping
     public String listRecruiters(Model model, Principal principal) {

@@ -5,19 +5,18 @@ import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.repository.company.BranchRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BranchService {
 
-    @Autowired
-    private BranchRepository branchRepository;
+    private final BranchRepository branchRepository;
 
-    @Autowired
-    private RecruiterRepository recruiterRepository;
+    private final RecruiterRepository recruiterRepository;
 
 
     public List<Branch> getBranchesByCompanyId(Integer companyId) {

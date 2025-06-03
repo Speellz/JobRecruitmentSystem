@@ -6,26 +6,24 @@ import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
 
 import java.security.Principal;
 import java.util.List;
 
 @Controller
 @RequestMapping("/company")
+@RequiredArgsConstructor
 public class ManagerController {
 
-    @Autowired
-    private BranchService branchService;
+    private final BranchService branchService;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private RecruiterService recruiterService;
+    private final RecruiterService recruiterService;
 
 
     @GetMapping("/assign-manager/{id}")
