@@ -4,8 +4,10 @@ import com.jobrecruitment.model.User;
 import com.jobrecruitment.repository.UserRepository;
 import com.jobrecruitment.service.common.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,11 +28,13 @@ import java.io.IOException;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
-    private final UserService userService;
 
-    public SecurityConfig(UserRepository userRepository, UserService userService) {
+    @Lazy
+    @Autowired
+    private UserService userService;
+
+    public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userService = userService;
     }
 
     @Bean
@@ -71,10 +75,14 @@ public class SecurityConfig {
         return (request, response, authentication) -> {
             String email = authentication.getName();
             User user = userService.findByEmail(email);
-            if (user != null && user.getCompany() != null) {
+            if (user != null) {
                 HttpSession session = request.getSession();
-                session.setAttribute("userCompany", user.getCompany());
+                session.setAttribute("loggedUser", user);
+                if (user.getCompany() != null) {
+                    session.setAttribute("userCompany", user.getCompany());
+                }
             }
+
             response.sendRedirect("/");
         };
     }
