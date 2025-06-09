@@ -13,4 +13,5 @@ public interface RecruiterRepository extends JpaRepository<Recruiter, Integer> {
     List<Recruiter> findByCompanyId(Integer companyId);
     Optional<Recruiter> findByUserEmail(String email);
     List<Recruiter> findByBranch_CompanyId(Integer companyId);
+    Recruiter findByUserId(Long userId);
 }

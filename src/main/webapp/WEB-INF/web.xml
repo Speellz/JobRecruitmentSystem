@@ -25,4 +25,9 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <taglib>
+        <taglib-uri>http://jobrecruitment.com/tags/dateformatter</taglib-uri>
+        <taglib-location>/WEB-INF/tlds/dateformatter.tld</taglib-location>
+    </taglib>
+
 </web-app>

@@ -27,7 +27,7 @@
     <div style="margin-top: 15px;">
         <c:choose>
             <c:when test="${isBusinessPage}">
-                <a href="<%= request.getContextPath() %>/auth/business-signup">Sign up</a>
+                <a href="<%= request.getContextPath() %>/auth/company-signup">Sign up</a>
             </c:when>
             <c:otherwise>
                 <a href="<%= request.getContextPath() %>/auth/signup">Sign up</a>
