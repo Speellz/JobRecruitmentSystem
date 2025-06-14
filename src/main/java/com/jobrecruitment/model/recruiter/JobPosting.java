@@ -32,6 +32,9 @@ public class JobPosting {
     @JoinColumn(name = "category_id", nullable = false)
     private JobCategory category;
 
+    @Column(nullable = false)
+    private String position;
+
     private String location;
 
     @Column(name = "salary_range")

@@ -3,6 +3,7 @@ package com.jobrecruitment.service.company;
 import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
+import com.jobrecruitment.model.recruiter.RecruiterRole;
 import com.jobrecruitment.repository.company.BranchRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import org.springframework.stereotype.Service;
@@ -51,15 +52,27 @@ public class BranchService {
     public void assignManager(Integer branchId, Integer recruiterId) {
         Branch branch = branchRepository.findById(branchId).orElseThrow();
         Recruiter recruiter = recruiterRepository.findById(recruiterId).orElseThrow();
+
+        recruiter.setRole(RecruiterRole.HR_MANAGER);
+        recruiterRepository.save(recruiter);
+
         branch.setManager(recruiter.getUser());
         branchRepository.save(branch);
     }
 
+
     public void removeManager(Integer branchId) {
         Branch branch = branchRepository.findById(branchId).orElseThrow();
+
+        if (branch.getManager() != null) {
+            Recruiter recruiter = recruiterRepository.findByUserId(branch.getManager().getId());
+            if (recruiter != null) {
+                recruiter.setRole(RecruiterRole.RECRUITER);
+                recruiterRepository.save(recruiter);
+            }
+        }
+
         branch.setManager(null);
         branchRepository.save(branch);
     }
-
-
 }

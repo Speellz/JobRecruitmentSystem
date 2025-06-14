@@ -3,6 +3,7 @@ package com.jobrecruitment.controller.common;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.recruiter.JobPosting;
 import com.jobrecruitment.model.recruiter.Recruiter;
+import com.jobrecruitment.model.recruiter.RecruiterRole;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import jakarta.servlet.http.HttpSession;
@@ -47,6 +48,18 @@ public class HomeController {
 
         } else if (user.getRole().name().equals("RECRUITER")) {
             Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+
+            if (recruiter != null) {
+                session.setAttribute("currentUserId", user.getId());
+                session.setAttribute("isManager", recruiter.getRole() == RecruiterRole.HR_MANAGER);
+                session.setAttribute("currentBranchId", recruiter.getBranch().getId());
+
+                System.out.println("Manager: " + (recruiter.getRole() == RecruiterRole.HR_MANAGER));
+                System.out.println("BranchId: " + (recruiter.getBranch() != null ? recruiter.getBranch().getId() : "null"));
+                System.out.println("UserId: " + user.getId());
+            }
+
+
             Integer branchId = (recruiter != null && recruiter.getBranch() != null)
                     ? recruiter.getBranch().getId()
                     : null;

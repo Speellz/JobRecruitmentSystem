@@ -19,11 +19,14 @@
         <label class="form-label">Title:</label>
         <input type="text" name="title" class="input" required>
 
+        <label class="form-label">Position:</label>
+        <input type="text" name="position" class="input" required>
+
         <label class="form-label">Description:</label>
         <textarea name="description" rows="4" class="input" required></textarea>
 
         <label class="form-label">Category:</label>
-        <select name="categoryId" class="input">
+        <select name="categoryId" class="input" required>
             <c:forEach var="cat" items="${categoryList}">
                 <option value="${cat.id}">${cat.name}</option>
             </c:forEach>

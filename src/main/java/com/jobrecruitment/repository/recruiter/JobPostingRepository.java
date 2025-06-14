@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JobPostingRepository extends JpaRepository<JobPosting, Integer> {
@@ -19,5 +20,11 @@ public interface JobPostingRepository extends JpaRepository<JobPosting, Integer>
 
     @Query("SELECT j FROM JobPosting j WHERE j.company.id = :companyId")
     List<JobPosting> getAllByCompanyId(@Param("companyId") Integer companyId);
+
+    @Query(value = "SELECT * FROM [Job_Postings] WHERE LOWER(title) LIKE '%' + LOWER(:keyword) + '%' OR LOWER(description) LIKE '%' + LOWER(:keyword) + '%'", nativeQuery = true)
+    List<JobPosting> searchByTitleOrDescription(@Param("keyword") String keyword);
+
+    @Query("SELECT j FROM JobPosting j JOIN FETCH j.recruiter r JOIN FETCH r.branch WHERE j.id = :id")
+    Optional<JobPosting> findWithRecruiterAndBranchById(Integer id);
 
 }

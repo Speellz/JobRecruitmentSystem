@@ -52,6 +52,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAuthority("ADMIN")
                         .requestMatchers(new AntPathRequestMatcher("/company/**")).hasAuthority("COMPANY")
+                        .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/edit", "GET")).hasAnyAuthority("RECRUITER", "COMPANY")
+                        .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/update", "POST")).hasAnyAuthority("RECRUITER", "COMPANY")
                         .requestMatchers(new AntPathRequestMatcher("/recruiter/**")).hasAuthority("RECRUITER")
                         .requestMatchers(new AntPathRequestMatcher("/applicant/**")).hasAuthority("APPLICANT")
                         .requestMatchers(HttpMethod.POST, "/auth/set-role").permitAll()
