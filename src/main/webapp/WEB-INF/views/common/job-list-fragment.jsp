@@ -21,16 +21,40 @@
             <p><strong>Salary:</strong> ${job.salaryRange}</p>
             <p><strong>Created:</strong> ${df:format(job.createdAt)}</p>
         </div>
-        <div class="job-actions">
-            <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
-                <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="view-link">Edit</a>
-            </sec:authorize>
-            <sec:authorize access="hasAuthority('APPLICANT')">
-                <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="view-link">Apply</a>
-            </sec:authorize>
-            <sec:authorize access="!isAuthenticated()">
-                <a href="${pageContext.request.contextPath}/auth/login" class="view-link">Login to Apply</a>
-            </sec:authorize>
+
+        <div class="job-actions" style="display: flex; justify-content: space-between;">
+            <div>
+                <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
+                    <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
+                                 (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
+                                 (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
+                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="view-link">Edit</a>
+                    </c:if>
+                </sec:authorize>
+            </div>
+            <div>
+                <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
+                    <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
+                                 (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
+                                 (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
+                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="view-link">View Applications</a>
+                    </c:if>
+                </sec:authorize>
+                <sec:authorize access="hasAuthority('APPLICANT')">
+                    <c:choose>
+                        <c:when test="${appliedMap[job.id]}">
+                            <span class="view-link" style="color: grey;">Already Applied</span>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="view-link">Apply</a>
+                        </c:otherwise>
+                    </c:choose>
+                </sec:authorize>
+                <sec:authorize access="!isAuthenticated()">
+                    <a href="${pageContext.request.contextPath}/auth/login" class="view-link">Login to Apply</a>
+                </sec:authorize>
+            </div>
         </div>
     </div>
 </c:forEach>
+

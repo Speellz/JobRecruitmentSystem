@@ -347,6 +347,7 @@ input#roleToggle:checked + label .toggle-thumb {
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     transition: box-shadow 0.2s ease-in-out;
     font-family: 'Poppins', sans-serif;
+    margin-bottom: 25px;
 }
 
 
@@ -356,7 +357,7 @@ input#roleToggle:checked + label .toggle-thumb {
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     padding: 0 20px;
 }
 

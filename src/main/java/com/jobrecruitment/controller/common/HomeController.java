@@ -1,9 +1,11 @@
 package com.jobrecruitment.controller.common;
 
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.recruiter.JobPosting;
 import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.recruiter.RecruiterRole;
+import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import jakarta.servlet.http.HttpSession;
@@ -14,7 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class HomeController {
@@ -24,6 +27,9 @@ public class HomeController {
 
     @Autowired
     private RecruiterRepository recruiterRepository;
+
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @GetMapping("/")
     public ModelAndView home(HttpSession session) {
@@ -36,9 +42,22 @@ public class HomeController {
 
         User user = (User) session.getAttribute("loggedUser");
         List<JobPosting> jobList;
+        Map<Integer, Boolean> appliedMap = new HashMap<>();
 
         if (user == null || user.getRole().name().equals("APPLICANT")) {
             jobList = jobPostingRepository.findByStatus("Open");
+
+            if (user != null) {
+                List<Application> applications = applicationRepository.findByApplicantId(user.getId().intValue());
+                Set<Integer> appliedJobIds = applications.stream()
+                        .map(app -> app.getJob().getId())
+                        .collect(Collectors.toSet());
+
+                for (JobPosting job : jobList) {
+                    appliedMap.put(job.getId(), appliedJobIds.contains(job.getId()));
+                }
+                mav.addObject("appliedMap", appliedMap);
+            }
 
         } else if (user.getRole().name().equals("COMPANY")) {
             Integer companyId = user.getCompany() != null ? user.getCompany().getId() : null;
@@ -53,12 +72,7 @@ public class HomeController {
                 session.setAttribute("currentUserId", user.getId());
                 session.setAttribute("isManager", recruiter.getRole() == RecruiterRole.HR_MANAGER);
                 session.setAttribute("currentBranchId", recruiter.getBranch().getId());
-
-                System.out.println("Manager: " + (recruiter.getRole() == RecruiterRole.HR_MANAGER));
-                System.out.println("BranchId: " + (recruiter.getBranch() != null ? recruiter.getBranch().getId() : "null"));
-                System.out.println("UserId: " + user.getId());
             }
-
 
             Integer branchId = (recruiter != null && recruiter.getBranch() != null)
                     ? recruiter.getBranch().getId()

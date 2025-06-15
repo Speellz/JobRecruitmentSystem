@@ -1,6 +1,7 @@
 package com.jobrecruitment.controller.recruiter;
 
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.recruiter.JobCategory;
 import com.jobrecruitment.model.recruiter.JobPosting;
 import com.jobrecruitment.model.recruiter.Recruiter;
@@ -8,6 +9,7 @@ import com.jobrecruitment.model.recruiter.RecruiterRole;
 import com.jobrecruitment.repository.recruiter.JobCategoryRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
+import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -29,6 +33,9 @@ public class JobPostingController {
 
     @Autowired
     private JobCategoryRepository jobCategoryRepository;
+
+    @Autowired
+    private ApplicationRepository ApplicationRepository;
 
     @GetMapping("/jobs")
     public String index(Model model, HttpSession session) {
@@ -112,13 +119,27 @@ public class JobPostingController {
     }
 
     @GetMapping("/search-live")
-    public String searchLive(@RequestParam("q") String q, Model model) {
+    public String searchLive(@RequestParam("q") String q, HttpSession session, Model model) {
         List<JobPosting> jobList = (q == null || q.isBlank())
                 ? jobPostingRepository.findAll()
                 : jobPostingRepository.searchByTitleOrDescription(q);
         model.addAttribute("jobList", jobList);
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user != null && user.getRole().name().equals("APPLICANT")) {
+            List<Application> applications = ApplicationRepository.findByApplicantId(user.getId().intValue());
+
+            Map<Integer, Boolean> appliedMap = new HashMap<>();
+            for (Application app : applications) {
+                appliedMap.put(app.getJob().getId(), true);
+            }
+
+            model.addAttribute("appliedMap", appliedMap);
+        }
+
         return "common/job-list-fragment";
     }
+
 
     @GetMapping("/recruiter/job/{id}/edit")
     public String editJobForm(@PathVariable Integer id, Model model, HttpSession session) {
