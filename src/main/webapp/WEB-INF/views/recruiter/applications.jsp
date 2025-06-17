@@ -32,10 +32,20 @@
                 <div class="branch-actions">
                     <c:if test="${app.status == 'PENDING'}">
                         <form method="post" action="/recruiter/application/${app.id}/approve">
-                            <button type="submit" class="button-blue">✅ Approve</button>
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="button-blue">Approve</button>
                         </form>
+
                         <form method="post" action="/recruiter/application/${app.id}/reject">
-                            <button type="submit" class="button-red">❌ Reject</button>
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="button-red">Reject</button>
+                        </form>
+                    </c:if>
+
+                    <c:if test="${app.status != 'PENDING'}">
+                        <form method="post" action="/recruiter/application/${app.id}/remove">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="button-red">🗑 Remove</button>
                         </form>
                     </c:if>
                 </div>

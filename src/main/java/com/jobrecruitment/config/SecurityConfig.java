@@ -54,11 +54,20 @@ public class SecurityConfig {
                         .requestMatchers(new AntPathRequestMatcher("/company/**")).hasAuthority("COMPANY")
                         .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/edit", "GET")).hasAnyAuthority("RECRUITER", "COMPANY")
                         .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/update", "POST")).hasAnyAuthority("RECRUITER", "COMPANY")
+
+                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/approve").hasAuthority("RECRUITER")
+                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/reject").hasAuthority("RECRUITER")
+                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/remove").hasAuthority("RECRUITER")
+
+                        .requestMatchers("/skills/**").hasAuthority("APPLICANT")
+
+
                         .requestMatchers(new AntPathRequestMatcher("/recruiter/**")).hasAuthority("RECRUITER")
                         .requestMatchers(new AntPathRequestMatcher("/applicant/**")).hasAuthority("APPLICANT")
                         .requestMatchers(HttpMethod.POST, "/auth/set-role").permitAll()
                         .anyRequest().permitAll()
                 )
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/perform_login")

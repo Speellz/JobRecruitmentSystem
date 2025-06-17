@@ -88,4 +88,26 @@ public class RecruiterApplicationController {
         return "redirect:/recruiter/job/" + app.getJob().getId() + "/applications";
     }
 
+    @PostMapping("/application/{id}/remove")
+    public String removeApplication(@PathVariable Integer id, HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null || !user.getRole().name().equals("RECRUITER")) {
+            return "redirect:/login";
+        }
+
+        Application app = applicationRepository.findById(id).orElse(null);
+        if (app == null) return "redirect:/recruiter/index";
+
+        Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+        if (!app.getJob().getBranch().getId().equals(recruiter.getBranch().getId())) {
+            return "redirect:/recruiter/index";
+        }
+
+        Integer jobId = app.getJob().getId();
+        applicationRepository.delete(app);
+
+        return "redirect:/recruiter/job/" + jobId + "/applications";
+    }
+
+
 }

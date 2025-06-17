@@ -80,100 +80,74 @@
         </c:when>
     </c:choose>
 
-    <sec:authorize access="isAuthenticated()">
-        <c:if test="${not (fn:contains(principal.authoritiesAsString, 'ADMIN') or (sessionScope.userCompany ne null and sessionScope.userCompany.status == 'Pending'))}">
+    <div class="main-column title-panel">
+        <h2 style="margin: 0; font-family: 'Poppins', sans-serif; color: #0a66c2;">
+            Latest Job Postings
+        </h2>
+        <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="input" style="width: 300px; padding: 8px; margin-top: 15px;">
+        <sec:authorize access="hasAuthority('RECRUITER')">
+            <a href="${pageContext.request.contextPath}/recruiter/job/form" class="button-blue" style="margin-top: 15px; display: inline-block;">+ Add Job</a>
+        </sec:authorize>
+    </div>
 
-            <div class="main-column title-panel">
-                <h2 style="margin: 0; font-family: 'Poppins', sans-serif; color: #0a66c2;">
-                    Latest Job Postings
-                </h2>
-                <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="input" style="width: 300px; padding: 8px; margin-top: 15px;">
-                <sec:authorize access="hasAuthority('RECRUITER')">
-                    <a href="${pageContext.request.contextPath}/recruiter/job/form" class="button-blue" style="margin-top: 15px; display: inline-block;">+ Add Job</a>
-                </sec:authorize>
-                <c:if test="${empty jobList}">
-                    <p style="margin-top: 15px;">No job postings yet.</p>
-                </c:if>
-            </div>
-            <div class="job-card-container" id="jobContainer">
-                <c:forEach var="job" items="${jobList}">
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div class="recruiter-name">${job.recruiter.user.name}</div>
-                            <div class="recruiter-info">${job.company.name} • ${job.branch.name}</div>
-                        </div>
-                        <div class="job-body">
-                            <h3>${job.title}</h3>
-                            <p>${job.description}</p>
-                            <p><strong>Position:</strong> ${job.position}</p>
-                            <p><strong>Location:</strong> ${job.location}</p>
-                            <p><strong>Type:</strong> ${job.employmentType}</p>
-                            <p><strong>Salary:</strong> ${job.salaryRange}</p>
-                            <p><strong>Created:</strong> ${df:format(job.createdAt)}</p>
-                        </div>
+    <div class="job-card-container" id="jobContainer">
+        <c:forEach var="job" items="${jobList}">
+            <div class="job-card">
+                <div class="job-header">
+                    <div class="recruiter-name">${job.recruiter.user.name}</div>
+                    <div class="recruiter-info">${job.company.name} • ${job.branch.name}</div>
+                </div>
+                <div class="job-body">
+                    <h3>${job.title}</h3>
+                    <p>${job.description}</p>
+                    <p><strong>Position:</strong> ${job.position}</p>
+                    <p><strong>Location:</strong> ${job.location}</p>
+                    <p><strong>Type:</strong> ${job.employmentType}</p>
+                    <p><strong>Salary:</strong> ${job.salaryRange}</p>
+                    <p><strong>Created:</strong> ${df:format(job.createdAt)}</p>
+                    <a href="${pageContext.request.contextPath}/job/${job.id}" class="view-link">View Details</a>
+                </div>
 
-                        <div class="job-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
-                                    <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
-                         (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
-                         (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
-                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="view-link">Edit</a>
-                                    </c:if>
-                                </sec:authorize>
-                            </div>
-
-                            <div>
-                                <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
-                                    <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
-                         (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
-                         (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
-                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="view-link">View Applications</a>
-                                    </c:if>
-                                </sec:authorize>
-                            </div>
-                        </div>
-
+                <div class="job-actions" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
+                            <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
+                             (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
+                             (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
+                                <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="view-link">Edit</a>
+                            </c:if>
+                        </sec:authorize>
                     </div>
-                </c:forEach>
-            </div>
-        </c:if>
-    </sec:authorize>
-
-    <sec:authorize access="!isAuthenticated()">
-        <div class="main-column title-panel">
-            <h2 style="margin: 0; font-family: 'Poppins', sans-serif; color: #0a66c2;">
-                Latest Job Postings
-            </h2>
-            <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="input" style="width: 300px; padding: 8px; margin-top: 15px;">
-            <c:if test="${empty jobList}">
-                <p style="margin-top: 15px;">No job postings yet.</p>
-            </c:if>
-        </div>
-        <div class="job-card-container" id="jobContainer">
-            <c:forEach var="job" items="${jobList}">
-                <div class="job-card">
-                    <div class="job-header">
-                        <div class="recruiter-name">${job.recruiter.user.name}</div>
-                        <div class="recruiter-info">${job.company.name} • ${job.branch.name}</div>
-                    </div>
-                    <div class="job-body">
-                        <h3>${job.title}</h3>
-                        <p>${job.description}</p>
-                        <p><strong>Position:</strong> ${job.position}</p>
-                        <p><strong>Location:</strong> ${job.location}</p>
-                        <p><strong>Type:</strong> ${job.employmentType}</p>
-                        <p><strong>Salary:</strong> ${job.salaryRange}</p>
-                        <p><strong>Created:</strong> ${df:format(job.createdAt)}</p>
-                    </div>
-                    <div class="job-actions">
-                        <a href="${pageContext.request.contextPath}/auth/login" class="view-link">Login to Apply</a>
+                    <div>
+                        <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
+                            <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
+                             (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
+                             (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
+                                <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="view-link">View Applications</a>
+                            </c:if>
+                        </sec:authorize>
+                        <sec:authorize access="hasAuthority('APPLICANT')">
+                            <c:choose>
+                                <c:when test="${appliedMap[job.id]}">
+                                    <span class="view-link" style="color: grey;">Already Applied</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="view-link">Apply</a>
+                                </c:otherwise>
+                            </c:choose>
+                        </sec:authorize>
+                        <sec:authorize access="!isAuthenticated()">
+                            <a href="${pageContext.request.contextPath}/auth/login" class="view-link">Login to Apply</a>
+                        </sec:authorize>
                     </div>
                 </div>
-            </c:forEach>
-        </div>
-    </sec:authorize>
+            </div>
+        </c:forEach>
 
+        <c:if test="${empty jobList}">
+            <p style="margin-top: 15px;">No job postings found.</p>
+        </c:if>
+    </div>
 </div>
 
 <script>

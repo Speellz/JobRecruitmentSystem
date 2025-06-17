@@ -17,26 +17,26 @@
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
         <label class="form-label">Title:</label>
-        <input type="text" name="title" class="input" required>
+        <input type="text" name="title" class="input" required placeholder="CutechDev Software Engineer">
 
         <label class="form-label">Position:</label>
-        <input type="text" name="position" class="input" required>
+        <input type="text" name="position" class="input" required placeholder="Software Engineer">
 
         <label class="form-label">Description:</label>
         <textarea name="description" rows="4" class="input" required></textarea>
 
         <label class="form-label">Category:</label>
-        <select name="categoryId" class="input" required>
+        <select name="categoryId" class="input" required style="width: 100%;">
             <c:forEach var="cat" items="${categoryList}">
                 <option value="${cat.id}">${cat.name}</option>
             </c:forEach>
         </select>
 
         <label class="form-label">Location:</label>
-        <input type="text" name="location" class="input">
+        <input type="text" name="location" class="input" required placeholder="Istanbul, Turkey">
 
         <label class="form-label">Salary Range:</label>
-        <input type="text" name="salaryRange" class="input">
+        <input type="text" name="salaryRange" class="input" placeholder="1000$-2000$">
 
         <label class="form-label">Employment Type:</label>
         <select name="employmentType" class="input">
@@ -45,6 +45,9 @@
             <option value="Contract">Contract</option>
             <option value="Internship">Internship</option>
         </select>
+
+        <label class="form-label">Required Skills:</label>
+        <input type="text" name="skills" class="input" placeholder="Java, Spring Boot, SQL">
 
         <button type="submit" class="button-blue">Create Job</button>
     </form>

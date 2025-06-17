@@ -458,3 +458,15 @@ input#roleToggle:checked + label .toggle-thumb {
 .job-actions {
     margin-top: 10px;
 }
+
+ul.skill-list {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+ul.skill-list li {
+    margin: 4px 0;
+    font-weight: normal;
+    color: #333;
+}
