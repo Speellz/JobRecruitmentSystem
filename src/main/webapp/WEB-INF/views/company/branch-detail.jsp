@@ -3,51 +3,60 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="../common/navbar.jsp"/>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Branch Details</title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body class="bg-light">
 
-<div class="page-container">
-    <h1 style="text-align: center; margin-bottom: 30px;">Branch Detail</h1>
+<div class="container my-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 800px;">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Branch Detail</h2>
 
-    <div class="panel business-panel" style="max-width: 800px; margin: 0 auto; text-align: left;">
-        <p><strong>🏢 Name:</strong> ${branch.name}</p>
-        <p><strong>📍 Location:</strong> ${branch.location}</p>
-        <p><strong>📅 Created At:</strong> ${formattedCreatedAt}</p>
-        <p><strong>🏢 Company:</strong> ${branch.company.name}</p>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item"><strong>🏢 Name:</strong> ${branch.name}</li>
+                <li class="list-group-item"><strong>📍 Location:</strong> ${branch.location}</li>
+                <li class="list-group-item"><strong>📅 Created At:</strong> ${formattedCreatedAt}</li>
+                <li class="list-group-item"><strong>🏢 Company:</strong> ${branch.company.name}</li>
+            </ul>
 
-        <c:if test="${not empty branch.manager}">
-            <hr style="margin: 25px 0;">
-            <h3>Branch Manager</h3>
-            <p><strong>👤 Name:</strong> ${branch.manager.name}</p>
-            <p><strong>📧 Email:</strong> ${branch.manager.email}</p>
-        </c:if>
+            <c:if test="${not empty branch.manager}">
+                <h5 class="mt-4">Branch Manager</h5>
+                <ul class="list-group list-group-flush mb-4">
+                    <li class="list-group-item"><strong>👤 Name:</strong> ${branch.manager.name}</li>
+                    <li class="list-group-item"><strong>📧 Email:</strong> ${branch.manager.email}</li>
+                </ul>
+            </c:if>
 
-        <hr style="margin: 25px 0;">
-        <h3>Recruiters in this Branch</h3>
-
-        <c:choose>
-            <c:when test="${not empty recruiters}">
-                <c:forEach var="recruiter" items="${recruiters}">
-                    <div class="panel branch-item" style="margin-bottom: 15px;">
-                        <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
-                        <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
-                        <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
+            <h5 class="mt-4">Recruiters in this Branch</h5>
+            <c:choose>
+                <c:when test="${not empty recruiters}">
+                    <div class="list-group mb-3">
+                        <c:forEach var="recruiter" items="${recruiters}">
+                            <div class="list-group-item">
+                                <p class="mb-1"><strong>👤 Name:</strong> ${recruiter.user.name}</p>
+                                <p class="mb-1"><strong>📧 Email:</strong> ${recruiter.user.email}</p>
+                                <p class="mb-0"><strong>📞 Phone:</strong> ${recruiter.phone}</p>
+                            </div>
+                        </c:forEach>
                     </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <div class="panel">No recruiters found in this branch.</div>
-            </c:otherwise>
-        </c:choose>
+                </c:when>
+                <c:otherwise>
+                    <div class="alert alert-warning">No recruiters found in this branch.</div>
+                </c:otherwise>
+            </c:choose>
 
-        <div style="margin-top: 30px;">
-            <a href="${pageContext.request.contextPath}/company/branches" class="button-blue">← Back to Branches</a>
+            <div class="text-center mt-4">
+                <a href="${pageContext.request.contextPath}/company/branches" class="btn btn-secondary">← Back to Branches</a>
+            </div>
         </div>
     </div>
 </div>
 
 </body>
+</html>

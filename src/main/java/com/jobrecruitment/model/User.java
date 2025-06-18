@@ -57,4 +57,7 @@ public class User {
             return this.role;
         }
     }
+
+    @Column(name = "cv_url")
+    private String cvUrl;
 }

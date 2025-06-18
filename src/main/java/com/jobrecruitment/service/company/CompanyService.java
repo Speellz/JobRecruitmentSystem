@@ -62,4 +62,14 @@ public class CompanyService {
         return companyRepository.findByStatus("Approved");
     }
 
+    public boolean deleteCompanyById(int id) {
+        Optional<Company> optionalCompany = companyRepository.findById(id);
+        if (optionalCompany.isPresent()) {
+            companyRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+
 }

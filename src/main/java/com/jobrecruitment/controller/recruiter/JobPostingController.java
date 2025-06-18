@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -39,44 +40,6 @@ public class JobPostingController {
     private JobSkillRepository jobSkillRepository;
 
 
-    @GetMapping("/jobs")
-    public String index(Model model, HttpSession session) {
-        User user = (User) session.getAttribute("loggedUser");
-        List<JobPosting> jobList;
-
-        if (user == null || user.getRole().equals("APPLICANT")) {
-            jobList = jobPostingRepository.findAll();
-        } else {
-            Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
-
-            if (recruiter != null) {
-                session.setAttribute("currentUserId", user.getId());
-                session.setAttribute("isManager", recruiter.getRole() == RecruiterRole.HR_MANAGER);
-
-                if (recruiter.getBranch() != null) {
-                    session.setAttribute("currentBranchId", recruiter.getBranch().getId());
-                    jobList = jobPostingRepository.getAllByBranchId(recruiter.getBranch().getId());
-                } else if (recruiter.getCompany() != null) {
-                    jobList = jobPostingRepository.getAllByCompanyId(recruiter.getCompany().getId());
-                } else {
-                    jobList = List.of();
-                }
-            } else {
-                jobList = List.of();
-            }
-        }
-
-        model.addAttribute("jobList", jobList);
-        return "index";
-    }
-
-    @GetMapping("/recruiter/job/form")
-    public String showJobForm(Model model) {
-        List<JobCategory> categoryList = jobCategoryRepository.findAll();
-        model.addAttribute("categoryList", categoryList);
-        return "recruiter/job-form";
-    }
-
     @PostMapping("/recruiter/job/add")
     public String addJobPosting(HttpSession session,
                                 @RequestParam String title,
@@ -86,19 +49,22 @@ public class JobPostingController {
                                 @RequestParam String location,
                                 @RequestParam String salaryRange,
                                 @RequestParam String employmentType,
-                                @RequestParam(required = false) String skills) {
+                                @RequestParam(required = false) String skills,
+                                RedirectAttributes redirectAttributes) {
 
         User loggedUser = (User) session.getAttribute("loggedUser");
         if (loggedUser == null) return "redirect:/login";
 
         Recruiter recruiter = recruiterRepository.findByUserId(loggedUser.getId());
         if (recruiter == null || recruiter.getBranch() == null || recruiter.getCompany() == null) {
-            return "redirect:/recruiter/index";
+            redirectAttributes.addFlashAttribute("error", "Invalid recruiter or branch/company.");
+            return "redirect:/recruiter/job/form";
         }
 
         JobCategory category = jobCategoryRepository.findById(categoryId).orElse(null);
         if (category == null) {
-            return "redirect:/recruiter/job/form?error=invalidCategory";
+            redirectAttributes.addFlashAttribute("error", "Invalid category selected.");
+            return "redirect:/recruiter/job/form";
         }
 
         JobPosting job = new JobPosting();
@@ -115,7 +81,6 @@ public class JobPostingController {
         job.setCompany(recruiter.getCompany());
         job.setCategory(category);
         job.setRecruiter(recruiter);
-
         jobPostingRepository.save(job);
 
         if (skills != null && !skills.isBlank()) {
@@ -128,11 +93,12 @@ public class JobPostingController {
             }
         }
 
+        redirectAttributes.addFlashAttribute("success", "Job successfully posted.");
         return "redirect:/";
     }
 
 
-    @GetMapping("/search-live")
+    @GetMapping(value = "/search-live", produces = "text/html")
     public String searchLive(@RequestParam("q") String q, HttpSession session, Model model) {
         List<JobPosting> jobList = (q == null || q.isBlank())
                 ? jobPostingRepository.findAll()
@@ -209,24 +175,32 @@ public class JobPostingController {
                             @RequestParam Integer categoryId,
                             @RequestParam String location,
                             @RequestParam String salaryRange,
-                            @RequestParam String employmentType){
+                            @RequestParam String employmentType,
+                            RedirectAttributes redirectAttributes) {
 
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) return "redirect:/login";
 
         Optional<JobPosting> jobOpt = jobPostingRepository.findById(id);
-        if (jobOpt.isEmpty()) return "redirect:/?error=Job not found";
+        if (jobOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Job not found.");
+            return "redirect:/";
+        }
 
         JobPosting job = jobOpt.get();
 
         if (user.getRole().name().equals("COMPANY")) {
             if (!(user.getCompany() != null && job.getCompany() != null &&
                     user.getCompany().getId().equals(job.getCompany().getId()))) {
-                return "redirect:/?error=Unauthorized";
+                redirectAttributes.addFlashAttribute("error", "Unauthorized.");
+                return "redirect:/";
             }
         } else {
             Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
-            if (recruiter == null) return "redirect:/?error=Unauthorized";
+            if (recruiter == null) {
+                redirectAttributes.addFlashAttribute("error", "Unauthorized.");
+                return "redirect:/";
+            }
 
             boolean isOwner = job.getRecruiter() != null &&
                     job.getRecruiter().getId().equals(recruiter.getId());
@@ -236,12 +210,16 @@ public class JobPostingController {
                     job.getBranch().getId().equals(recruiter.getBranch().getId());
 
             if (!isOwner && !(isManager && isSameBranch)) {
-                return "redirect:/?error=Unauthorized access";
+                redirectAttributes.addFlashAttribute("error", "Unauthorized access.");
+                return "redirect:/";
             }
         }
 
         JobCategory category = jobCategoryRepository.findById(categoryId).orElse(null);
-        if (category == null) return "redirect:/?error=Invalid category";
+        if (category == null) {
+            redirectAttributes.addFlashAttribute("error", "Invalid category.");
+            return "redirect:/";
+        }
 
         job.setTitle(title);
         job.setDescription(description);
@@ -254,7 +232,83 @@ public class JobPostingController {
 
         jobPostingRepository.save(job);
 
-        return "redirect:/?success=Job updated";
+        redirectAttributes.addFlashAttribute("success", "Job successfully updated.");
+        return "redirect:/";
+    }
+
+    @GetMapping("/recruiter/jobs/my-branch")
+    public String viewMyBranchJobs(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/auth/login";
+
+        Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+        if (recruiter == null || recruiter.getBranch() == null) {
+            model.addAttribute("error", "Branch not found.");
+            return "common/index";
+        }
+
+        List<JobPosting> jobList = jobPostingRepository.findByBranchId(recruiter.getBranch().getId());
+        model.addAttribute("jobList", jobList);
+        model.addAttribute("viewMode", "branch");
+
+        return "common/index";
+    }
+
+    @GetMapping("/recruiter/jobs/my")
+    public String viewMyJobs(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/auth/login";
+
+        Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+        if (recruiter == null) {
+            model.addAttribute("error", "Recruiter not found.");
+            return "common/index";
+        }
+
+        List<JobPosting> jobList = jobPostingRepository.findByRecruiterId(recruiter.getId());
+        model.addAttribute("jobList", jobList);
+        model.addAttribute("viewMode", "personal");
+
+        return "common/index";
+    }
+
+    @GetMapping("/recruiter/job/form")
+    public String showJobForm(Model model, HttpSession session) {
+        List<JobCategory> categoryList = jobCategoryRepository.findAll();
+        model.addAttribute("categoryList", categoryList);
+        return "recruiter/job-form";
+    }
+
+    @PostMapping("/recruiter/job/{id}/delete")
+    public String deleteJobPosting(@PathVariable Integer id,
+                                   HttpSession session,
+                                   RedirectAttributes redirectAttributes) {
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/login";
+
+        JobPosting job = jobPostingRepository.findById(id).orElse(null);
+        if (job == null) {
+            redirectAttributes.addFlashAttribute("error", "Job not found.");
+            return "redirect:/";
+        }
+
+        Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+        boolean isManager = recruiter != null && recruiter.getRole().name().equals("HR_MANAGER");
+        boolean canDelete = job.getRecruiter().getUser().getId().equals(user.getId()) ||
+                (isManager && recruiter.getBranch().getId().equals(job.getBranch().getId()));
+
+        if (!canDelete) {
+            redirectAttributes.addFlashAttribute("error", "You do not have permission to delete this job.");
+            return "redirect:/";
+        }
+
+        jobSkillRepository.deleteAll(jobSkillRepository.findByJobPostingId(job.getId()));
+
+        jobPostingRepository.delete(job);
+
+        redirectAttributes.addFlashAttribute("success", "Job deleted successfully.");
+        return "redirect:/";
     }
 
 }

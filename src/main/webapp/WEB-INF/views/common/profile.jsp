@@ -7,76 +7,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Profile</title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
-    <style>
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleEditForm(section) {
+            const form = document.getElementById(section + '-form');
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
         }
-        .profile-header img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
+
+        function toggleEditRow(id) {
+            const target = document.getElementById('edit-row-' + id);
+            if (target) {
+                target.style.display = (target.style.display === 'none' || target.style.display === '') ? 'block' : 'none';
+            }
         }
-        .profile-details {
-            display: flex;
-            flex-direction: column;
-        }
-        .profile-details h2 {
-            font-size: 24px;
-            margin: 0;
-        }
-        .profile-details p {
-            font-size: 16px;
-            color: #555;
-            margin: 3px 0;
-        }
-        .job-card {
-            background: #fff;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        .job-card h3 {
-            font-size: 20px;
-        }
-        .job-card p, .job-card li, .job-card input {
-            font-size: 15px;
-        }
-        .skill-list form {
-            display: inline-block;
-            margin-right: 10px;
-        }
-        .skill-list input[type="text"] {
-            padding: 5px;
-            margin-right: 5px;
-        }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-light">
 <jsp:include page="navbar.jsp" />
 
-<div class="page-container">
-    <div class="profile-header">
-        <img src="<%= request.getContextPath() %>/img/default-profile.png" alt="Profile Image">
-        <div class="profile-details">
-            <h2>${user.name}</h2>
-            <p>${user.email}</p>
-            <p>Role: ${user.role}</p>
+<div class="container my-5">
+    <jsp:include page="messages.jsp"/>
+    <div class="card p-4 d-flex flex-row align-items-center gap-3">
+        <img src="<%= request.getContextPath() %>/img/default-profile.png" alt="Profile Image" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+        <div>
+            <h2 class="mb-1">${user.name}</h2>
+            <p class="mb-0">${user.email}</p>
+            <p class="text-muted">Role: ${user.role}</p>
         </div>
     </div>
 
-    <div class="job-card-container" style="margin-top: 30px;">
+    <div class="mt-4">
         <c:if test="${user.role eq 'RECRUITER'}">
-            <div class="job-card">
-                <h3>Recruiter Information</h3>
+            <div class="card p-4 mb-3">
+                <h5 class="card-title">Recruiter Information</h5>
                 <p><strong>Title:</strong>
                     <c:choose>
                         <c:when test="${recruiter.role eq 'HR_MANAGER'}">Manager</c:when>
@@ -88,9 +52,8 @@
                 <p><strong>Phone:</strong> ${recruiter.phone}</p>
                 <p><strong>Joined:</strong> <%= DateFormatterUtil.format((java.time.LocalDateTime) request.getAttribute("recruiter.createdAt")) %></p>
             </div>
-
-            <div class="job-card">
-                <h3>Recruiter Analytics</h3>
+            <div class="card p-4 mb-3">
+                <h5 class="card-title">Recruiter Analytics</h5>
                 <p><strong>Total Job Posts:</strong> ${analytics.totalPosts}</p>
                 <p><strong>Average Response Time:</strong> ${analytics.averageHiringTime} days</p>
                 <p><strong>Applications Reviewed:</strong> ${analytics.totalHires}</p>
@@ -98,56 +61,254 @@
         </c:if>
 
         <c:if test="${user.role eq 'APPLICANT'}">
-            <div class="job-card">
-                <h3>Education</h3>
-                <ul class="skill-list">
+            <!-- Education -->
+            <div class="card p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Education</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditForm('education')">+ Add</button>
+                </div>
+
+                <div id="education-form" class="mt-3" style="display:none;">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/education/add">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <div class="row g-2 mb-2">
+                            <div class="col"><input class="form-control" name="institutionName" placeholder="Institution Name" required></div>
+                            <div class="col"><input class="form-control" name="degree" placeholder="Degree" required></div>
+                            <div class="col"><input class="form-control" name="fieldOfStudy" placeholder="Field of Study" required></div>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col"><input class="form-control" name="startDate" placeholder="Start Date" required></div>
+                            <div class="col"><input class="form-control" name="endDate" placeholder="End Date" required></div>
+                        </div>
+                        <button class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+
+                <ul class="list-group list-group-flush mt-3">
                     <c:forEach var="edu" items="${educationList}">
-                        <li>${edu.schoolName} - ${edu.degree} (${edu.startDate} - ${edu.endDate})</li>
-                    </c:forEach>
-                </ul>
-            </div>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${edu.institutionName} - ${edu.degree} (${edu.startDate} to ${edu.endDate})</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('${edu.id}')">Edit</button>
+                            </div>
 
-            <div class="job-card">
-                <h3>Employment History</h3>
-                <ul class="skill-list">
-                    <c:forEach var="emp" items="${employmentList}">
-                        <li>${emp.companyName} - ${emp.jobTitle} (${emp.startDate} - ${emp.endDate})</li>
-                    </c:forEach>
-                </ul>
-            </div>
-
-            <div class="job-card">
-                <h3>Certifications</h3>
-                <ul class="skill-list">
-                    <c:forEach var="cert" items="${certificationList}">
-                        <li>${cert.certificationName} (${cert.issuedBy})</li>
-                    </c:forEach>
-                </ul>
-            </div>
-
-            <div class="job-card">
-                <h3>Skills</h3>
-                <form method="post" action="${pageContext.request.contextPath}/skills/add">
-                    <input type="text" name="skillName" placeholder="Add new skill" required>
-                    <button type="submit">Add</button>
-                </form>
-                <ul class="skill-list">
-                    <c:forEach var="skill" items="${skillList}">
-                        <li>
-                            <form method="post" action="${pageContext.request.contextPath}/skills/update/${skill.id}" style="display:inline;">
-                                <input type="text" name="skillName" value="${skill.skillName}" required>
-                                <button type="submit">Update</button>
-                            </form>
-                            <form method="post" action="${pageContext.request.contextPath}/skills/delete/${skill.id}" style="display:inline;">
-                                <button type="submit">Delete</button>
-                            </form>
+                            <div id="edit-row-${edu.id}" style="display: none;" class="mt-3">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/education/update/${edu.id}" class="row g-2 align-items-center mb-2">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <div class="col"><input class="form-control form-control-sm" name="institutionName" value="${edu.institutionName}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="degree" value="${edu.degree}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="fieldOfStudy" value="${edu.fieldOfStudy}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="startDate" value="${edu.startDate}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="endDate" value="${edu.endDate}" required></div>
+                                    <div class="col-auto d-flex gap-2">
+                                        <button class="btn btn-sm btn-success" type="submit">Update</button>
+                                        <button class="btn btn-sm btn-danger" type="button" onclick="toggleEditRow('${edu.id}')">Cancel</button>
+                                    </div>
+                                    </form>
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/education/delete/${edu.id}">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                                </form>
+                            </div>
                         </li>
                     </c:forEach>
                 </ul>
             </div>
+
+            <!-- Employment -->
+            <div class="card p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Employment History</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditForm('employment')">+ Add</button>
+                </div>
+
+                <!-- Add Form -->
+                <div id="employment-form" class="mt-3" style="display:none;">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/employment/add">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <div class="row g-2 mb-2">
+                            <div class="col"><input class="form-control" name="companyName" placeholder="Company Name" required></div>
+                            <div class="col"><input class="form-control" name="jobTitle" placeholder="Job Title" required></div>
+                            <div class="col"><input class="form-control" name="startDate" placeholder="Start Date" required></div>
+                            <div class="col"><input class="form-control" name="endDate" placeholder="End Date" required></div>
+                        </div>
+                        <button class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+
+                <!-- Employment List -->
+                <ul class="list-group list-group-flush mt-3">
+                    <c:forEach var="emp" items="${employmentList}">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${emp.companyName} - ${emp.jobTitle} (${emp.startDate} - ${emp.endDate})</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('emp-${emp.id}')">Edit</button>
+                            </div>
+
+                            <div id="edit-row-emp-${emp.id}" style="display:none;" class="mt-3">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/employment/update/${emp.id}" class="row g-2 align-items-center mb-2">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <div class="col"><input class="form-control form-control-sm" name="companyName" value="${emp.companyName}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="jobTitle" value="${emp.jobTitle}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="startDate" value="${emp.startDate}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="endDate" value="${emp.endDate}" required></div>
+                                    <div class="col-auto d-flex gap-2">
+                                        <button class="btn btn-sm btn-success" type="submit">Update</button>
+                                    </div>
+                                </form>
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/employment/delete/${emp.id}">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                                </form>
+                            </div>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+
+            <!-- Certifications -->
+            <div class="card p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Certifications</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditForm('certification')">+ Add</button>
+                </div>
+
+                <!-- Add Form -->
+                <div id="certification-form" class="mt-3" style="display:none;">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/certifications/add">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <div class="row g-2 mb-2">
+                            <div class="col"><input class="form-control" name="certificationName" placeholder="Certification Name" required></div>
+                            <div class="col"><input class="form-control" name="issuedBy" placeholder="Issued By" required></div>
+                        </div>
+                        <button class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+
+                <!-- Certification List -->
+                <ul class="list-group list-group-flush mt-3">
+                    <c:forEach var="cert" items="${certificationList}">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${cert.certificationName} (${cert.issuedBy})</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('cert-${cert.id}')">Edit</button>
+                            </div>
+
+                            <div id="edit-row-cert-${cert.id}" style="display:none;" class="mt-3">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/certifications/update/${cert.id}" class="row g-2 align-items-center mb-2">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <div class="col"><input class="form-control form-control-sm" name="certificationName" value="${cert.certificationName}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" name="issuedBy" value="${cert.issuedBy}" required></div>
+                                    <div class="col-auto d-flex gap-2">
+                                        <button class="btn btn-sm btn-success" type="submit">Update</button>
+                                    </div>
+                                </form>
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/certifications/delete/${cert.id}">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                                </form>
+                            </div>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+
+            <!-- Skills -->
+            <div class="card p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Skills</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleEditForm('skill')">+ Add</button>
+                </div>
+
+                <!-- Add Form -->
+                <div id="skill-form" class="mt-3" style="display:none;">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/skills/add">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <div class="mb-2"><input class="form-control" name="skillName" placeholder="Skill" required></div>
+                        <button class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+
+                <!-- Skills List -->
+                <ul class="list-group list-group-flush mt-3">
+                    <c:forEach var="skill" items="${skillList}">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>${skill.skillName}</span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('skill-${skill.id}')">Edit</button>
+                            </div>
+
+                            <div id="edit-row-skill-${skill.id}" style="display:none;" class="mt-3">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/skills/update/${skill.id}" class="d-flex gap-2 mb-2">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <input class="form-control form-control-sm" name="skillName" value="${skill.skillName}" required>
+                                    <button class="btn btn-sm btn-success" type="submit">Update</button>
+                                </form>
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/skills/delete/${skill.id}">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                                </form>
+                            </div>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </div>
+
+            <!-- CV Upload -->
+            <div class="card p-4 mb-3">
+                <h5 class="mb-3">Upload CV</h5>
+
+                <c:choose>
+                    <c:when test="${not empty user.cvUrl}">
+                        <p>
+                            Current CV:
+                            <a href="${user.cvUrl}" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleEditForm('cv')">Change</button>
+                        </p>
+
+                        <div id="cv-form" class="mt-3" style="display: none;">
+                            <form method="post" action="${pageContext.request.contextPath}/profile/upload-cv" enctype="multipart/form-data">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                <input type="file" name="cvFile" accept=".pdf" class="form-control mb-2" required />
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </form>
+                        </div>
+                    </c:when>
+
+                    <c:otherwise>
+                        <form method="post" action="${pageContext.request.contextPath}/profile/upload-cv" enctype="multipart/form-data">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                            <input type="file" name="cvFile" accept=".pdf" class="form-control mb-2" required />
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+
+
         </c:if>
     </div>
 </div>
-
 </body>
 </html>
+
+
+<script>
+    function toggleEditForm(section) {
+        const form = document.getElementById(section + '-form');
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+    }
+
+    function toggleEditSection(section) {
+        document.querySelectorAll('[id^="' + section + '-edit-"]').forEach(el => {
+            el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+        });
+    }
+
+    function toggleEditRow(id) {
+        const target = document.getElementById('edit-row-' + id);
+        if (target) {
+            target.style.display = (target.style.display === 'none' || target.style.display === '') ? 'block' : 'none';
+        }
+    }
+</script>

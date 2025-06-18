@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class AdminController {
     }
 
     @PostMapping("/approve-company/{id}")
-    public String approveCompany(@PathVariable int id) {
+    public String approveCompany(@PathVariable int id, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"))) {
@@ -49,19 +50,31 @@ public class AdminController {
         User adminUser = userService.findByEmail(email);
         int adminId = adminUser.getId().intValue();
 
-        companyService.approveCompany(id, adminId);
-        return "redirect:/admin/dashboard";
+        boolean success = companyService.approveCompany(id, adminId);
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Company approved successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Failed to approve company.");
+        }
+
+        return "redirect:/admin/admin-dashboard";
     }
 
     @PostMapping("/reject-company/{id}")
-    public String rejectCompany(@PathVariable int id) {
+    public String rejectCompany(@PathVariable int id, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"))) {
             return "redirect:/login";
         }
 
-        companyService.rejectCompany(id);
-        return "redirect:/admin/dashboard";
+        boolean success = companyService.rejectCompany(id);
+        if (success) {
+            redirectAttributes.addFlashAttribute("success", "Company rejected successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Failed to reject company.");
+        }
+
+        return "redirect:/admin/admin-dashboard";
     }
 }

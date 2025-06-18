@@ -1,12 +1,11 @@
 package com.jobrecruitment.service.common;
 
 import com.jobrecruitment.model.User;
-import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,11 +63,11 @@ public class UserService {
         return matches;
     }
 
-    public List<User> getRecruitersByCompanyId(Integer companyId) {
+    public List<User> getRecruitersByCompanyId(Long companyId) {
         return userRepository.findByCompanyIdAndRecruiterRole(companyId);
     }
 
-    public User getUserById(Integer id) {
+    public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
@@ -76,12 +75,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public void deleteUser(Integer id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
-
 }

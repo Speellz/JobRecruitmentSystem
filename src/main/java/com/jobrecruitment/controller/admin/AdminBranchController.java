@@ -5,10 +5,11 @@ import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.company.CompanyService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -18,13 +19,13 @@ import java.util.List;
 public class AdminBranchController {
 
     private final BranchService branchService;
-
     private final CompanyService companyService;
-
     private final RecruiterService recruiterService;
 
     @GetMapping("/{branchId}")
-    public String viewBranchDetail(@PathVariable("branchId") Integer branchId, Model model) {
+    public String viewBranchDetail(@PathVariable("branchId") Integer branchId, Model model,
+                                   @ModelAttribute("success") String success,
+                                   @ModelAttribute("error") String error) {
         Branch branch = branchService.getBranchById(branchId);
         if (branch == null) {
             return "redirect:/admin/companies";
@@ -34,7 +35,6 @@ public class AdminBranchController {
 
         model.addAttribute("branch", branch);
         model.addAttribute("recruiters", recruiters);
-
         return "admin/branch-detail";
     }
 
@@ -48,11 +48,11 @@ public class AdminBranchController {
     }
 
     @PostMapping("/{branchId}/assign-manager")
-    public String assignManager(
-            @PathVariable Integer branchId,
-            @RequestParam Integer managerRecruiterId
-    ) {
+    public String assignManager(@PathVariable Integer branchId,
+                                @RequestParam Integer managerRecruiterId,
+                                RedirectAttributes redirectAttributes) {
         branchService.assignManager(branchId, managerRecruiterId);
-        return "redirect:/admin/branches/" + branchId + "?managerAssigned=true";
+        redirectAttributes.addFlashAttribute("success", "Manager successfully assigned to branch.");
+        return "redirect:/admin/branches/" + branchId;
     }
 }

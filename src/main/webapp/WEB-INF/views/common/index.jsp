@@ -4,162 +4,140 @@
 <%@ taglib prefix="df" uri="http://jobrecruitment.com/tags/dateformatter" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<%
-    response.setContentType("text/html;charset=UTF-8");
-%>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JobRecruit | Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
 </head>
-
-<body>
+<body class="bg-light">
 
 <jsp:include page="navbar.jsp" />
 
-<c:if test="${not empty error}">
-    <div class="alert error">${error}</div>
-</c:if>
+<div class="container py-4">
+    <jsp:include page="messages.jsp"/>
+    <div class="mb-4">
+        <h2 class="text-primary">Latest Job Postings</h2>
+        <div class="d-flex gap-3 flex-wrap mt-3">
+            <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="form-control" style="max-width: 300px;">
 
-<c:if test="${not empty success}">
-    <div class="alert success">${success}</div>
-</c:if>
-
-<div class="page-container">
-
-    <c:choose>
-        <c:when test="${not empty pageContext.request.userPrincipal}">
-            <sec:authorize access="hasAuthority('ADMIN')">
-                <div class="panel admin-panel">
-                    <h2>Admin Panel</h2>
-                    <p>Manage pending companies and platform settings.</p>
-                    <a href="${pageContext.request.contextPath}/admin/admin-dashboard" class="button">Manage Companies</a>
-                    <a href="${pageContext.request.contextPath}/admin/users" class="button">Manage Users</a>
-                    <a href="${pageContext.request.contextPath}/admin/companies" class="button">View All Companies</a>
-                </div>
+            <sec:authorize access="hasAuthority('RECRUITER')">
+                <a href="${pageContext.request.contextPath}/recruiter/job/form" class="btn btn-primary">+ Add Job</a>
             </sec:authorize>
 
-            <sec:authorize access="hasAuthority('COMPANY')">
-                <c:choose>
-                    <c:when test="${empty sessionScope.userCompany}">
-                        <div class="panel business-panel">
-                            <h2>Register Your Company</h2>
-                            <form action="${pageContext.request.contextPath}/company/add-company" method="post">
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                                <input type="text" name="name" placeholder="Company Name" required class="input">
-                                <input type="email" name="email" placeholder="Company Email" required class="input">
-                                <input type="text" name="phone" placeholder="Phone" required class="input">
-                                <input type="text" name="website" placeholder="Website" required class="input">
-                                <button type="submit" class="button">Submit</button>
-                            </form>
-                        </div>
-                    </c:when>
-
-                    <c:when test="${sessionScope.userCompany.status == 'Pending'}">
-                        <div class="panel business-panel">
-                            <h2>Your company is awaiting admin approval!</h2>
-                            <p>Please wait until an administrator approves your registration.</p>
-                        </div>
-                    </c:when>
-
-                    <c:when test="${sessionScope.userCompany.status == 'Approved'}">
-                        <div class="panel business-panel">
-                            <h2>Welcome, ${sessionScope.userCompany.name}!</h2>
-                            <p>Manage your company operations.</p>
-                            <a href="${pageContext.request.contextPath}/company/branches" class="button">Manage Branches</a>
-                            <a href="${pageContext.request.contextPath}/company/managers" class="button">Manage Managers</a>
-                            <a href="${pageContext.request.contextPath}/company/recruiters" class="button">Manage Recruiters</a>
-                        </div>
-                    </c:when>
-                </c:choose>
+            <sec:authorize access="hasAuthority('APPLICANT')">
+                <a href="${pageContext.request.contextPath}/applicant/applications" class="btn btn-outline-primary ms-2">My Applications</a>
             </sec:authorize>
-        </c:when>
-    </c:choose>
+        </div>
 
-    <div class="main-column title-panel">
-        <h2 style="margin: 0; font-family: 'Poppins', sans-serif; color: #0a66c2;">
-            Latest Job Postings
-        </h2>
-        <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="input" style="width: 300px; padding: 8px; margin-top: 15px;">
         <sec:authorize access="hasAuthority('RECRUITER')">
-            <a href="${pageContext.request.contextPath}/recruiter/job/form" class="button-blue" style="margin-top: 15px; display: inline-block;">+ Add Job</a>
+            <div class="mt-3">
+                <a href="${pageContext.request.contextPath}/recruiter/jobs/my-branch"
+                   class="btn btn-outline-primary me-2 ${viewMode == 'branch' ? 'active' : ''}">My Branch Job Postings</a>
+                <a href="${pageContext.request.contextPath}/recruiter/jobs/my"
+                   class="btn btn-outline-primary ${viewMode == 'personal' ? 'active' : ''}">My Job Postings</a>
+            </div>
         </sec:authorize>
     </div>
 
-    <div class="job-card-container" id="jobContainer">
-        <c:forEach var="job" items="${jobList}">
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="recruiter-name">${job.recruiter.user.name}</div>
-                    <div class="recruiter-info">${job.company.name} • ${job.branch.name}</div>
-                </div>
-                <div class="job-body">
-                    <h3>${job.title}</h3>
-                    <p>${job.description}</p>
-                    <p><strong>Position:</strong> ${job.position}</p>
-                    <p><strong>Location:</strong> ${job.location}</p>
-                    <p><strong>Type:</strong> ${job.employmentType}</p>
-                    <p><strong>Salary:</strong> ${job.salaryRange}</p>
-                    <p><strong>Created:</strong> ${df:format(job.createdAt)}</p>
-                    <a href="${pageContext.request.contextPath}/job/${job.id}" class="view-link">View Details</a>
-                </div>
+    <div id="jobContainer">
+        <c:if test="${empty jobList}">
+            <div class="alert alert-info">No job postings found.</div>
+        </c:if>
 
-                <div class="job-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
-                            <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
-                             (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
-                             (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
-                                <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="view-link">Edit</a>
-                            </c:if>
-                        </sec:authorize>
+        <c:forEach var="job" items="${jobList}">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div class="mb-2">
+                        <h5 class="card-title mb-0">${job.title}</h5>
+                        <small class="text-muted">${job.recruiter.user.name} • ${job.company.name} • ${job.branch.name}</small>
                     </div>
-                    <div>
-                        <sec:authorize access="hasAnyAuthority('RECRUITER', 'COMPANY')">
-                            <c:if test="${(job.recruiter != null and job.recruiter.user.id == sessionScope.currentUserId) or
-                             (sessionScope.isManager and job.branch != null and job.branch.id == sessionScope.currentBranchId) or
-                             (job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id)}">
-                                <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="view-link">View Applications</a>
-                            </c:if>
-                        </sec:authorize>
-                        <sec:authorize access="hasAuthority('APPLICANT')">
-                            <c:choose>
-                                <c:when test="${appliedMap[job.id]}">
-                                    <span class="view-link" style="color: grey;">Already Applied</span>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="view-link">Apply</a>
-                                </c:otherwise>
-                            </c:choose>
-                        </sec:authorize>
-                        <sec:authorize access="!isAuthenticated()">
-                            <a href="${pageContext.request.contextPath}/auth/login" class="view-link">Login to Apply</a>
-                        </sec:authorize>
+                    <p class="card-text mt-2">${job.description}</p>
+
+                    <ul class="list-unstyled">
+                        <li><strong>Position:</strong> ${job.position}</li>
+                        <li><strong>Location:</strong> ${job.location}</li>
+                        <li><strong>Type:</strong> ${job.employmentType}</li>
+                        <li><strong>Salary:</strong> ${job.salaryRange}</li>
+                        <li><strong>Created:</strong> ${df:format(job.createdAt)}</li>
+                    </ul>
+
+                    <div class="d-flex justify-content-between mt-3 flex-wrap gap-2">
+                        <div>
+                            <sec:authorize access="hasAuthority('RECRUITER')">
+                                <c:if test="${job.recruiter.user.id == sessionScope.currentUserId or sessionScope.isManager}">
+                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
+                                </c:if>
+                            </sec:authorize>
+
+                            <sec:authorize access="hasAuthority('COMPANY')">
+                                <c:if test="${job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id}">
+                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
+                                </c:if>
+                            </sec:authorize>
+                        </div>
+
+                        <div>
+                            <a href="${pageContext.request.contextPath}/job/${job.id}" class="btn btn-outline-primary btn-sm">View Details</a>
+
+                            <sec:authorize access="hasAuthority('APPLICANT')">
+                                <c:choose>
+                                    <c:when test="${appliedMap[job.id]}">
+                                        <span class="btn btn-sm btn-secondary disabled">Already Applied</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="btn btn-sm btn-success">Apply</a>
+                                    </c:otherwise>
+                                </c:choose>
+                            </sec:authorize>
+
+                            <sec:authorize access="!isAuthenticated()">
+                                <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-sm btn-outline-dark">Login to Apply</a>
+                            </sec:authorize>
+                        </div>
                     </div>
                 </div>
             </div>
         </c:forEach>
-
-        <c:if test="${empty jobList}">
-            <p style="margin-top: 15px;">No job postings found.</p>
-        </c:if>
     </div>
 </div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    document.querySelectorAll('#searchInput').forEach(input => {
-        input.addEventListener('input', function () {
-            const keyword = this.value;
-            fetch("${pageContext.request.contextPath}/search-live?q=" + encodeURIComponent(keyword))
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById("jobContainer").innerHTML = html;
-                });
-        });
+    const basePath = "${pageContext.request.contextPath}";
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const keyword = this.value.trim();
+
+        if (keyword === "") {
+            window.location.href = basePath + "/";
+            return;
+        }
+
+        fetch(basePath + "/search-live?q=" + encodeURIComponent(keyword), {
+            headers: {
+                'Accept': 'text/html'
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Fetch error: " + response.status);
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("jobContainer").innerHTML = html;
+            })
+            .catch(err => {
+                console.error("Search error:", err);
+            });
     });
 </script>
 

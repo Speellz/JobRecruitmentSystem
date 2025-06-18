@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -31,29 +32,41 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public String registerApplicant(@ModelAttribute("user") User user, BindingResult result) {
+    public String registerApplicant(@ModelAttribute("user") User user,
+                                    BindingResult result,
+                                    RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) return "common/signup";
-        if (userService.findByEmail(user.getEmail()) != null)
-            return "redirect:/auth/signup?error=email-exists";
+
+        if (userService.findByEmail(user.getEmail()) != null) {
+            redirectAttributes.addFlashAttribute("error", "Email is already in use.");
+            return "redirect:/auth/signup";
+        }
 
         user.setPassword(userService.encodePassword(user.getPassword()));
         user.setRole(User.Role.APPLICANT);
         userService.saveUser(user);
 
-        return "redirect:/auth/login?success";
+        redirectAttributes.addFlashAttribute("success", "Signup successful. Please log in.");
+        return "redirect:/auth/login";
     }
 
     @PostMapping("/company-signup")
-    public String registerCompany(@ModelAttribute("user") User user, BindingResult result) {
+    public String registerCompany(@ModelAttribute("user") User user,
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) return "common/company-signup";
-        if (userService.findByEmail(user.getEmail()) != null)
-            return "redirect:/auth/company-signup?error=email-exists";
+
+        if (userService.findByEmail(user.getEmail()) != null) {
+            redirectAttributes.addFlashAttribute("error", "Email is already in use.");
+            return "redirect:/auth/company-signup";
+        }
 
         user.setPassword(userService.encodePassword(user.getPassword()));
         user.setRole(User.Role.COMPANY);
         userService.saveUser(user);
 
-        return "redirect:/auth/login?success";
+        redirectAttributes.addFlashAttribute("success", "Company account created. Please log in.");
+        return "redirect:/auth/login";
     }
 
     @PostMapping("/set-role")

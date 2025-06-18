@@ -32,6 +32,9 @@ public class Company {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @Column(name = "logo_path")
+    private String logoPath;
+
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

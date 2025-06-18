@@ -50,23 +50,25 @@ public class SecurityConfig {
                         .ignoringRequestMatchers(new AntPathRequestMatcher("/auth/set-role"))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/admin/**")).hasAuthority("ADMIN")
-                        .requestMatchers(new AntPathRequestMatcher("/company/**")).hasAuthority("COMPANY")
-                        .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/edit", "GET")).hasAnyAuthority("RECRUITER", "COMPANY")
-                        .requestMatchers(new AntPathRequestMatcher("/recruiter/job/*/update", "POST")).hasAnyAuthority("RECRUITER", "COMPANY")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/company/**").hasAuthority("COMPANY")
+                        .requestMatchers(HttpMethod.POST, "/company/upload-logo").hasAuthority("COMPANY")
+                        .requestMatchers(HttpMethod.POST, "/company/remove-logo").hasAuthority("COMPANY")
 
-                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/approve").hasAuthority("RECRUITER")
-                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/reject").hasAuthority("RECRUITER")
-                        .requestMatchers(HttpMethod.POST, "/recruiter/application/*/remove").hasAuthority("RECRUITER")
+                        .requestMatchers(HttpMethod.POST, "/recruiter/job/*/update").hasAnyAuthority("RECRUITER", "COMPANY")
+                        .requestMatchers("/recruiter/job/*/edit").hasAnyAuthority("RECRUITER", "COMPANY")
 
-                        .requestMatchers("/skills/**").hasAuthority("APPLICANT")
+                        .requestMatchers("/recruiter/**").hasAuthority("RECRUITER")
+                        .requestMatchers(HttpMethod.POST, "/recruiter/application/**").hasAuthority("RECRUITER")
 
+                        .requestMatchers("/applicant/**").hasAuthority("APPLICANT")
+                        .requestMatchers("/applicant/skills/**").hasAuthority("APPLICANT")
 
-                        .requestMatchers(new AntPathRequestMatcher("/recruiter/**")).hasAuthority("RECRUITER")
-                        .requestMatchers(new AntPathRequestMatcher("/applicant/**")).hasAuthority("APPLICANT")
                         .requestMatchers(HttpMethod.POST, "/auth/set-role").permitAll()
                         .anyRequest().permitAll()
                 )
+
+
 
                 .formLogin(form -> form
                         .loginPage("/login")

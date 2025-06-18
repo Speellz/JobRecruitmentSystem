@@ -3,58 +3,68 @@
 
 <c:set var="isBusinessPage" value="${pageContext.session.getAttribute('roleType') == 'business'}" />
 
-<nav class="navbar">
-    <div class="navbar-left">
-        <a href="<%= request.getContextPath() %>/">JobRecruit</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="<%= request.getContextPath() %>/">JobRecruit</a>
 
         <sec:authorize access="!isAuthenticated()">
-            <div class="toggle-switch">
-                <input type="checkbox" id="roleToggle" ${isBusinessPage ? "checked" : ""}>
-                <label for="roleToggle">
-                    <span class="toggle-track">
-                        <span class="toggle-option left">Applicant</span>
-                        <span class="toggle-option right">Business</span>
-                        <span class="toggle-thumb"></span>
-                    </span>
+            <div class="form-check form-switch me-3">
+                <input class="form-check-input" type="checkbox" id="roleToggle" ${isBusinessPage ? "checked" : ""}>
+                <label class="form-check-label" for="roleToggle">
+                    <c:choose>
+                        <c:when test="${isBusinessPage}">Applicant</c:when>
+                        <c:otherwise>Business</c:otherwise>
+                    </c:choose>
                 </label>
             </div>
         </sec:authorize>
-    </div>
 
-    <div class="navbar-right">
-        <sec:authorize access="!isAuthenticated()">
-            <c:choose>
-                <c:when test="${isBusinessPage}">
-                    <a href="<%= request.getContextPath() %>/auth/login">Login</a>
-                    <a href="<%= request.getContextPath() %>/auth/company-signup" class="signup-btn">Sign up</a>
-                </c:when>
-                <c:otherwise>
-                    <a href="<%= request.getContextPath() %>/auth/login">Login</a>
-                    <a href="<%= request.getContextPath() %>/auth/signup" class="signup-btn">Sign up</a>
-                </c:otherwise>
-            </c:choose>
-        </sec:authorize>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <sec:authorize access="hasAuthority('COMPANY')">
-            <a href="<%= request.getContextPath() %>/company/dashboard">Company Dashboard</a>
-            <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
-        </sec:authorize>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+            <ul class="navbar-nav mb-2 mb-lg-0">
+                <sec:authorize access="!isAuthenticated()">
+                    <c:choose>
+                        <c:when test="${isBusinessPage}">
+                            <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/login">Login</a></li>
+                            <li class="nav-item"><a class="btn btn-primary ms-2" href="<%= request.getContextPath() %>/auth/company-signup">Sign up</a></li>
+                        </c:when>
+                        <c:otherwise>
+                            <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/login">Login</a></li>
+                            <li class="nav-item"><a class="btn btn-primary ms-2" href="<%= request.getContextPath() %>/auth/signup">Sign up</a></li>
+                        </c:otherwise>
+                    </c:choose>
+                </sec:authorize>
 
-        <sec:authorize access="hasAuthority('RECRUITER')">
-            <a href="<%= request.getContextPath() %>/recruiter/my-company">My Company</a>
-            <a href="<%= request.getContextPath() %>/profile">My Profile</a>
-            <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
-        </sec:authorize>
+                <sec:authorize access="hasAuthority('COMPANY')">
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/dashboard">My Company</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/branches">Branches</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/managers">Managers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/recruiters">Recruiters</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/logout">Logout</a></li>
+                </sec:authorize>
 
-        <sec:authorize access="hasAuthority('APPLICANT')">
-            <a href="<%= request.getContextPath() %>/profile">My Profile</a>
-            <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
-        </sec:authorize>
 
-        <sec:authorize access="hasAuthority('ADMIN')">
-            <a href="<%= request.getContextPath() %>/admin/admin-dashboard">Admin</a>
-            <a href="<%= request.getContextPath() %>/auth/logout">Logout</a>
-        </sec:authorize>
+                <sec:authorize access="hasAuthority('APPLICANT')">
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/profile">My Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/logout">Logout</a></li>
+                </sec:authorize>
+
+                <sec:authorize access="hasAuthority('ADMIN')">
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/admin/admin-dashboard">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/logout">Logout</a></li>
+                </sec:authorize>
+
+                <sec:authorize access="hasAuthority('RECRUITER')">
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/recruiter/interview/feedback">Interview Feedbacks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/recruiter/interview/list">Interview Schedules</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/profile">My Profile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/logout">Logout</a></li>
+                </sec:authorize>
+            </ul>
+        </div>
     </div>
 </nav>
 
@@ -64,7 +74,6 @@
         if (toggle) {
             toggle.addEventListener("change", function () {
                 const selectedRole = this.checked ? "business" : "applicant";
-
                 fetch("<%= request.getContextPath() %>/auth/set-role?roleType=" + selectedRole, {
                     method: "POST"
                 }).then(() => {

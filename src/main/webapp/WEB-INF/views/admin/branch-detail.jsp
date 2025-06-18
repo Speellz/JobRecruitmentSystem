@@ -2,61 +2,86 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="../common/navbar.jsp" />
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Branch Details</title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
-<body>
-<div class="page-container">
-    <h1 style="text-align: center; margin-bottom: 30px;">Branch Detail</h1>
-    <div class="panel company-panel" style="max-width: 800px; margin: 0 auto; text-align: left;">
-        <p><strong>🏢 Name:</strong> ${branch.name}</p>
-        <p><strong>📍 Location:</strong> ${branch.location}</p>
+<body class="bg-light">
+<div class="container my-5">
+    <jsp:include page="../common/messages.jsp"/>
+    <h1 class="text-center mb-4">Branch Detail</h1>
 
-        <hr style="margin: 25px 0;">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p><strong>🏢 Name:</strong> ${branch.name}</p>
+            <p><strong>📍 Location:</strong> ${branch.location}</p>
+        </div>
+    </div>
 
-        <h3 style="margin-bottom: 10px;">Manager</h3>
-        <c:choose>
-            <c:when test="${not empty branch.manager}">
-                <div class="panel branch-item" style="margin-bottom: 10px;">
+    <!-- Manager Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Manager</h5>
+            <c:choose>
+                <c:when test="${not empty branch.manager}">
+                    <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}/edit-manager" class="btn btn-light btn-sm">Edit</a>
+                </c:when>
+                <c:otherwise>
+                    <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}/assign-manager" class="btn btn-light btn-sm">Assign</a>
+                </c:otherwise>
+            </c:choose>
+        </div>
+        <div class="card-body">
+            <c:choose>
+                <c:when test="${not empty branch.manager}">
                     <p><strong>👤 Name:</strong> ${branch.manager.name}</p>
                     <p><strong>📧 Email:</strong> ${branch.manager.email}</p>
-                    <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}/edit-manager" class="button-blue" style="margin-top:8px;">Edit Manager</a>
-                </div>
-            </c:when>
-            <c:otherwise>
-                <div class="panel" style="background-color: #fff3cd; color: #856404; padding: 10px 15px; border-left: 4px solid #ffc107; margin-bottom:10px; display: flex; align-items: center; justify-content: space-between;">
-                    <span>No manager assigned to this branch.</span>
-                    <a href="${pageContext.request.contextPath}/admin/branches/${branch.id}/assign-manager" class="button-blue" style="margin-left: 10px;">Assign Manager</a>
-                </div>
-            </c:otherwise>
-        </c:choose>
-
-        <hr style="margin: 25px 0;">
-
-        <h3 style="margin-bottom: 15px;">Recruiters in this Branch</h3>
-        <c:choose>
-            <c:when test="${not empty recruiters}">
-                <c:forEach var="recruiter" items="${recruiters}">
-                    <div class="panel branch-item" style="margin-bottom: 15px;">
-                        <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
-                        <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
-                        <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
-                    </div>
-                </c:forEach>
-            </c:when>
-            <c:otherwise>
-                <div class="panel" style="background-color: #f9f9f9;">
-                    No recruiters found in this branch.
-                </div>
-            </c:otherwise>
-        </c:choose>
-
-        <div style="margin-top: 30px;">
-            <a href="${pageContext.request.contextPath}/admin/companies/${branch.company.id}" class="button-blue">← Back to Company</a>
+                </c:when>
+                <c:otherwise>
+                    <div class="alert alert-warning mb-0">No manager assigned to this branch.</div>
+                </c:otherwise>
+            </c:choose>
         </div>
+    </div>
+
+    <!-- Recruiters Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Recruiters in this Branch</h5>
+        </div>
+        <div class="card-body">
+            <c:choose>
+                <c:when test="${not empty recruiters}">
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        <c:forEach var="recruiter" items="${recruiters}">
+                            <div class="col">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <p><strong>👤 Name:</strong> ${recruiter.user.name}</p>
+                                        <p><strong>📧 Email:</strong> ${recruiter.user.email}</p>
+                                        <p><strong>📞 Phone:</strong> ${recruiter.phone}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="alert alert-light">No recruiters found in this branch.</div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="${pageContext.request.contextPath}/admin/companies/${branch.company.id}" class="btn btn-secondary">← Back to Company</a>
     </div>
 </div>
 </body>
+</html>

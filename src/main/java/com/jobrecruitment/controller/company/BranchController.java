@@ -6,10 +6,11 @@ import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -22,9 +23,7 @@ import java.util.List;
 public class BranchController {
 
     private final BranchService branchService;
-
     private final UserService userService;
-
     private final RecruiterService recruiterService;
 
     @GetMapping
@@ -42,7 +41,8 @@ public class BranchController {
     @PostMapping("/add")
     public String addBranch(@RequestParam String name,
                             @RequestParam String location,
-                            Principal principal) {
+                            Principal principal,
+                            RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/auth/login";
 
         User user = userService.findByEmail(principal.getName());
@@ -55,25 +55,29 @@ public class BranchController {
         branch.setCreatedAt(LocalDateTime.now());
 
         branchService.addBranch(branch);
+        redirectAttributes.addFlashAttribute("success", "Branch successfully added.");
         return "redirect:/company/branches";
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteBranch(@PathVariable Integer id) {
+    public String deleteBranch(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         branchService.deleteBranch(id);
+        redirectAttributes.addFlashAttribute("success", "Branch successfully deleted.");
         return "redirect:/company/branches";
     }
 
     @GetMapping("/edit/{id}")
     public String editBranch(@PathVariable Integer id, Model model) {
         Branch branch = branchService.getBranchById(id);
+        if (branch == null) return "redirect:/company/branches";
         model.addAttribute("branch", branch);
         return "company/edit-branch";
     }
 
     @PostMapping("/update")
-    public String updateBranch(@ModelAttribute Branch branch) {
+    public String updateBranch(@ModelAttribute Branch branch, RedirectAttributes redirectAttributes) {
         branchService.updateBranch(branch);
+        redirectAttributes.addFlashAttribute("success", "Branch updated successfully.");
         return "redirect:/company/branches";
     }
 
@@ -93,9 +97,11 @@ public class BranchController {
 
     @PostMapping("/update-manager/{id}")
     public String updateManager(@PathVariable("id") Integer branchId,
-                                @RequestParam("managerId") Integer managerId) {
+                                @RequestParam("managerId") Integer managerId,
+                                RedirectAttributes redirectAttributes) {
 
         branchService.assignManager(branchId, managerId);
+        redirectAttributes.addFlashAttribute("success", "Branch manager updated successfully.");
         return "redirect:/company/managers";
     }
 }

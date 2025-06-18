@@ -21,8 +21,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,16 +37,20 @@ public class CommonController {
     private final EmploymentHistoryRepository employmentHistoryRepository;
     private final CertificationRepository certificationRepository;
     private final UserSkillRepository userSkillRepository;
+    private final UserRepository userRepository;
     private final RecruiterRepository recruiterRepository;
     private final RecruiterAnalyticsRepository recruiterAnalyticsRepository;
 
     @PostMapping("/set-role")
-    public String setRoleType(@RequestParam String roleType, HttpSession session) {
+    public String setRoleType(@RequestParam String roleType,
+                              HttpSession session,
+                              RedirectAttributes redirectAttributes) {
         if ("business".equals(roleType)) {
             session.setAttribute("roleType", "business");
         } else {
             session.removeAttribute("roleType");
         }
+        redirectAttributes.addFlashAttribute("success", "Role updated successfully.");
         return "redirect:/";
     }
 
@@ -77,4 +86,40 @@ public class CommonController {
 
         return "common/profile";
     }
+
+    @PostMapping("/applicant/upload-cv")
+    public String uploadCv(@RequestParam("cvFile") MultipartFile cvFile,
+                           HttpSession session,
+                           RedirectAttributes redirectAttributes) {
+
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null || user.getRole() != User.Role.APPLICANT) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized access.");
+            return "redirect:/auth/login";
+        }
+
+        if (cvFile.isEmpty() || !cvFile.getOriginalFilename().endsWith(".pdf")) {
+            redirectAttributes.addFlashAttribute("error", "Please upload a valid PDF file.");
+            return "redirect:/profile";
+        }
+
+        String uploadDir = "C:/cv-uploads/";
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        String fileName = UUID.randomUUID() + "_" + cvFile.getOriginalFilename();
+        File savedFile = new File(uploadDir + fileName);
+
+        try {
+            cvFile.transferTo(savedFile);
+            user.setCvUrl("/uploads/cv/" + fileName);
+            userRepository.save(user);
+            redirectAttributes.addFlashAttribute("success", "CV uploaded successfully.");
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to upload CV.");
+        }
+
+        return "redirect:/profile";
+    }
+
 }

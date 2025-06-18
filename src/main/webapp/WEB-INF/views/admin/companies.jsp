@@ -2,32 +2,41 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="../common/navbar.jsp" />
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Approved Companies</title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-<div class="page-container">
-    <h1 style="text-align: center; margin-bottom: 30px;">Approved Companies</h1>
+
+<body class="bg-light">
+<div class="container my-5">
+    <jsp:include page="../common/messages.jsp"/>
+    <h1 class="text-center mb-4">Approved Companies</h1>
 
     <c:if test="${empty companies}">
-        <div class="panel" style="text-align: center;">No approved companies available.</div>
+        <div class="alert alert-info text-center">No approved companies available.</div>
     </c:if>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <div class="row g-4">
         <c:forEach var="company" items="${companies}">
-            <div class="panel company-panel" style="text-align: left;">
-                <p><strong>🏢 Name:</strong> ${company.name}</p>
-                <p><strong>📧 Email:</strong> ${company.email}</p>
-                <p><strong>📞 Phone:</strong> ${company.phone}</p>
-                <p><strong>🌐 Website:</strong> <a href="${company.website}" target="_blank">${company.website}</a></p>
-
-                <div style="margin-top: 15px;">
-                    <a href="${pageContext.request.contextPath}/admin/companies/${company.id}" class="button-blue">View Details</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <p><strong>🏢 Name:</strong> ${company.name}</p>
+                        <p><strong>📧 Email:</strong> ${company.email}</p>
+                        <p><strong>📞 Phone:</strong> ${company.phone}</p>
+                        <p><strong>🌐 Website:</strong> <a href="${company.website}" target="_blank">${company.website}</a></p>
+                    </div>
+                    <div class="card-footer text-end">
+                        <a href="${pageContext.request.contextPath}/admin/companies/${company.id}" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
                 </div>
             </div>
         </c:forEach>
     </div>
 </div>
 </body>
+</html>

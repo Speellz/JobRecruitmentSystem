@@ -2,31 +2,62 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="../common/navbar.jsp" />
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Add Recruiter</title>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-<div class="page-container">
-    <h1 style="text-align:center; margin-bottom:30px;">Add Recruiter</h1>
-    <form action="${pageContext.request.contextPath}/company/recruiters/add" method="post" style="max-width:400px;margin:0 auto;">
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-        <label for="branchId">Select Branch:</label>
-        <select name="branchId" id="branchId" required class="input" style="margin-bottom:15px;">
-            <option value="" disabled selected>Choose branch...</option>
-            <c:forEach var="branch" items="${branches}">
-                <option value="${branch.id}">${branch.name} (${branch.location})</option>
-            </c:forEach>
-        </select>
-        <input type="text" name="user.name" placeholder="Name" required class="input" />
-        <input type="email" name="user.email" placeholder="Email" required class="input" />
-        <input type="text" name="phone" placeholder="Phone" required class="input" />
-        <input type="password" name="user.password" placeholder="Password" required class="input" />
-        <button type="submit" class="button-blue" style="width:100%;margin-top:16px;">Add Recruiter</button>
-    </form>
-    <div style="text-align:center;margin-top:15px;">
-        <a href="${pageContext.request.contextPath}/company/recruiters" class="button">← Back</a>
+<body class="bg-light">
+
+<div class="container my-5">
+    <jsp:include page="../common/messages.jsp"/>
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <h3 class="card-title text-center mb-4">Add Recruiter</h3>
+
+            <form action="${pageContext.request.contextPath}/company/recruiters/add" method="post">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
+                <div class="mb-3">
+                    <label for="branchId" class="form-label">Select Branch:</label>
+                    <select name="branchId" id="branchId" class="form-select" required>
+                        <option value="" disabled selected>Choose branch...</option>
+                        <c:forEach var="branch" items="${branches}">
+                            <option value="${branch.id}">${branch.name} (${branch.location})</option>
+                        </c:forEach>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" name="user.name" class="form-control" placeholder="Name" required/>
+                </div>
+
+                <div class="mb-3">
+                    <input type="email" name="user.email" class="form-control" placeholder="Email" required/>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" name="phone" class="form-control" placeholder="Phone" required/>
+                </div>
+
+                <div class="mb-4">
+                    <input type="password" name="user.password" class="form-control" placeholder="Password" required/>
+                </div>
+
+                <div class="d-grid mb-2">
+                    <button type="submit" class="btn btn-primary">Add Recruiter</button>
+                </div>
+
+                <div class="text-center">
+                    <a href="${pageContext.request.contextPath}/company/recruiters" class="btn btn-secondary">← Back</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
 </body>
+</html>

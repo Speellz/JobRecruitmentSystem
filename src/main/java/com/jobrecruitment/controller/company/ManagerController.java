@@ -6,10 +6,11 @@ import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -20,11 +21,8 @@ import java.util.List;
 public class ManagerController {
 
     private final BranchService branchService;
-
     private final UserService userService;
-
     private final RecruiterService recruiterService;
-
 
     @GetMapping("/assign-manager/{id}")
     public String showAssignManagerForm(@PathVariable Integer id, Model model, Principal principal) {
@@ -41,8 +39,11 @@ public class ManagerController {
     }
 
     @PostMapping("/assign-manager/{id}")
-    public String assignManager(@PathVariable Integer id, @RequestParam Integer managerId) {
+    public String assignManager(@PathVariable Integer id,
+                                @RequestParam Integer managerId,
+                                RedirectAttributes redirectAttributes) {
         branchService.assignManager(id, managerId);
+        redirectAttributes.addFlashAttribute("success", "Manager assigned successfully.");
         return "redirect:/company/branches";
     }
 
@@ -55,24 +56,28 @@ public class ManagerController {
 
         List<Branch> branches = branchService.getBranchesByCompanyId(user.getCompany().getId());
         model.addAttribute("branches", branches);
-
         return "company/managers";
     }
 
     @PostMapping("/update-manager/{branchId}")
-    public String updateManager(@PathVariable Integer branchId, @RequestParam(required = false) Integer managerId) {
-        if(managerId != null){
+    public String updateManager(@PathVariable Integer branchId,
+                                @RequestParam(required = false) Integer managerId,
+                                RedirectAttributes redirectAttributes) {
+        if (managerId != null) {
             branchService.assignManager(branchId, managerId);
+            redirectAttributes.addFlashAttribute("success", "Manager updated successfully.");
         } else {
             branchService.removeManager(branchId);
+            redirectAttributes.addFlashAttribute("success", "Manager removed successfully.");
         }
         return "redirect:/company/managers";
     }
 
     @PostMapping("/remove-manager/{id}")
-    public String removeManager(@PathVariable("id") Integer branchId) {
+    public String removeManager(@PathVariable("id") Integer branchId,
+                                RedirectAttributes redirectAttributes) {
         branchService.removeManager(branchId);
+        redirectAttributes.addFlashAttribute("success", "Manager removed successfully.");
         return "redirect:/company/managers";
     }
-
 }

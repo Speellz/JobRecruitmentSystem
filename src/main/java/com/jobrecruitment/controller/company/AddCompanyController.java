@@ -6,11 +6,11 @@ import com.jobrecruitment.service.company.CompanyService;
 import com.jobrecruitment.service.common.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import lombok.RequiredArgsConstructor;
 
 import java.security.Principal;
 
@@ -20,7 +20,6 @@ import java.security.Principal;
 public class AddCompanyController {
 
     private final CompanyService companyService;
-
     private final UserService userService;
 
     @PostMapping("/add-company")
@@ -31,16 +30,19 @@ public class AddCompanyController {
                                   RedirectAttributes redirectAttributes) {
 
         if (principal == null) {
+            redirectAttributes.addFlashAttribute("error", "You must be logged in to register a company.");
             return "redirect:/auth/login";
         }
 
         User user = userService.findByEmail(principal.getName());
         if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found.");
             return "redirect:/auth/login";
         }
 
         if (user.getCompany() != null) {
             session.setAttribute("userCompany", user.getCompany());
+            redirectAttributes.addFlashAttribute("error", "You already have a company.");
             return "redirect:/";
         }
 
@@ -54,7 +56,7 @@ public class AddCompanyController {
             user.setCompany(company);
             userService.saveUser(user);
             session.setAttribute("userCompany", company);
-            redirectAttributes.addFlashAttribute("success", "Company registered successfully!");
+            redirectAttributes.addFlashAttribute("success", "Company registered successfully and pending admin approval.");
             return "redirect:/";
         } else {
             redirectAttributes.addFlashAttribute("error", "A company with this email already exists.");

@@ -10,10 +10,11 @@ import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -25,13 +26,9 @@ import java.util.List;
 public class CompanyRecruiterController {
 
     private final RecruiterService recruiterService;
-
     private final BranchService branchService;
-
     private final UserService userService;
-
     private final UserRepository userRepository;
-
     private final RecruiterRepository recruiterRepository;
 
     @GetMapping
@@ -61,7 +58,9 @@ public class CompanyRecruiterController {
                                @RequestParam("branchId") Integer branchId,
                                Principal principal,
                                Model model,
-                               @RequestParam("phone") String phone) {
+                               @RequestParam("phone") String phone,
+                               RedirectAttributes redirectAttributes) {
+
         User currentUser = userService.findByEmail(principal.getName());
 
         if (userRepository.findByEmail(recruiter.getUser().getEmail()).isPresent()) {
@@ -89,13 +88,15 @@ public class CompanyRecruiterController {
 
         recruiterRepository.save(recruiter);
 
-        return "redirect:/company/recruiters?success";
+        redirectAttributes.addFlashAttribute("success", "Recruiter added successfully.");
+        return "redirect:/company/recruiters";
     }
 
-
     @PostMapping("/delete/{id}")
-    public String deleteRecruiter(@PathVariable("id") Integer id) {
+    public String deleteRecruiter(@PathVariable("id") Integer id,
+                                  RedirectAttributes redirectAttributes) {
         recruiterService.deleteRecruiter(id);
-        return "redirect:/company/recruiters?deleted";
+        redirectAttributes.addFlashAttribute("success", "Recruiter deleted successfully.");
+        return "redirect:/company/recruiters";
     }
 }
