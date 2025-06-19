@@ -1,11 +1,16 @@
 package com.jobrecruitment.controller.recruiter;
 
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.model.applicant.Application;
+import com.jobrecruitment.model.applicant.ApplicationStatus;
 import com.jobrecruitment.model.recruiter.InterviewFeedback;
 import com.jobrecruitment.model.recruiter.InterviewResult;
 import com.jobrecruitment.model.recruiter.InterviewSchedule;
+import com.jobrecruitment.model.recruiter.RecruiterAnalytics;
+import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.repository.recruiter.InterviewFeedbackRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
+import com.jobrecruitment.repository.recruiter.RecruiterAnalyticsRepository;
 import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,8 @@ public class InterviewFeedbackController {
     private final InterviewScheduleRepository interviewScheduleRepository;
     private final InterviewFeedbackRepository interviewFeedbackRepository;
     private final UserNotificationService userNotificationService;
+    private final ApplicationRepository applicationRepository;
+    private final RecruiterAnalyticsRepository recruiterAnalyticsRepository;
 
     @GetMapping("/feedback")
     public String showFeedbackPage(HttpSession session, Model model) {
@@ -105,6 +112,23 @@ public class InterviewFeedbackController {
 
         interviewFeedbackRepository.save(feedback);
 
+        if (result == InterviewResult.APPROVED) {
+            Application application = applicationRepository.findByApplicantIdAndJobId(
+                    interview.getApplicant().getId().longValue(),
+                    interview.getJob().getId().longValue()
+            );
+            if (application != null) {
+                application.setStatus(ApplicationStatus.APPROVED);
+                applicationRepository.save(application);
+
+                RecruiterAnalytics analytics = recruiterAnalyticsRepository.findByRecruiterId(recruiter.getId().longValue());
+                if (analytics != null) {
+                    analytics.setTotalHires(analytics.getTotalHires() + 1);
+                    recruiterAnalyticsRepository.save(analytics);
+                }
+            }
+        }
+
         userNotificationService.sendNotification(
                 interview.getApplicant(),
                 "Your interview result has been submitted. Please check your application.",
@@ -144,6 +168,23 @@ public class InterviewFeedbackController {
         feedback.setSubmittedAt(LocalDateTime.now());
 
         interviewFeedbackRepository.save(feedback);
+
+        if (result == InterviewResult.APPROVED) {
+            Application application = applicationRepository.findByApplicantIdAndJobId(
+                    interview.getApplicant().getId().longValue(),
+                    interview.getJob().getId().longValue()
+            );
+            if (application != null) {
+                application.setStatus(ApplicationStatus.APPROVED);
+                applicationRepository.save(application);
+
+                RecruiterAnalytics analytics = recruiterAnalyticsRepository.findByRecruiterId(recruiter.getId().longValue());
+                if (analytics != null) {
+                    analytics.setTotalHires(analytics.getTotalHires() + 1);
+                    recruiterAnalyticsRepository.save(analytics);
+                }
+            }
+        }
 
         userNotificationService.sendNotification(
                 interview.getApplicant(),

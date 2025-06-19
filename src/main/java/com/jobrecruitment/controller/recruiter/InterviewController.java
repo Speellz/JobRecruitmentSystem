@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,35 +29,17 @@ public class InterviewController {
     private final ApplicationRepository applicationRepository;
     private final UserNotificationService userNotificationService;
 
-    @GetMapping("/schedule/{applicationId}")
-    public String showScheduleForm(@PathVariable Integer applicationId,
-                                   @RequestParam(required = false) String selectedDate,
-                                   Model model) {
-        Application application = applicationRepository.findById(applicationId).orElse(null);
-        if (application == null) return "redirect:/recruiter/applications";
-
-        LocalDate date = selectedDate != null ? LocalDate.parse(selectedDate) : LocalDate.now();
-
-        List<String> bookedSlots = interviewScheduleRepository.findByDate(date).stream()
-                .map(i -> i.getTime().toLocalTime().truncatedTo(ChronoUnit.HOURS).toString())
-                .toList();
-
-        model.addAttribute("application", application);
-        model.addAttribute("bookedSlots", bookedSlots);
-        model.addAttribute("selectedDate", date.toString());
-
-        return "recruiter/schedule-interview";
-    }
-
     @PostMapping("/schedule")
     public String scheduleInterview(@RequestParam Integer applicationId,
                                     @RequestParam String time,
                                     @RequestParam(required = false) Integer rescheduleId,
-                                    HttpSession session) {
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes) {
         User recruiter = (User) session.getAttribute("loggedUser");
 
         Application application = applicationRepository.findById(applicationId).orElse(null);
         if (application == null || recruiter == null) {
+            redirectAttributes.addFlashAttribute("error", "Invalid operation.");
             return "redirect:/";
         }
 
@@ -79,6 +62,7 @@ public class InterviewController {
                 "/applicant/applications"
         );
 
+        redirectAttributes.addFlashAttribute("success", "Interview scheduled successfully.");
         return "redirect:/recruiter/interview/list";
     }
 

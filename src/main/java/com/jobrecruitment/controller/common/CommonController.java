@@ -26,6 +26,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,7 +82,7 @@ public class CommonController {
         if (user.getRole().name().equals("RECRUITER")) {
             Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
             if (recruiter != null) {
-                RecruiterAnalytics analytics = recruiterAnalyticsRepository.findByRecruiterId(recruiter.getId());
+                RecruiterAnalytics analytics = recruiterAnalyticsRepository.findByRecruiterId(recruiter.getId().longValue());
                 model.addAttribute("recruiter", recruiter);
                 model.addAttribute("analytics", analytics);
             }
@@ -86,6 +90,7 @@ public class CommonController {
 
         return "common/profile";
     }
+
 
     @PostMapping("/applicant/upload-cv")
     public String uploadCv(@RequestParam("cvFile") MultipartFile cvFile,
@@ -122,4 +127,52 @@ public class CommonController {
         return "redirect:/profile";
     }
 
+    @PostMapping("/profile/upload-photo")
+    public String uploadProfilePhoto(@RequestParam("photoFile") MultipartFile photoFile,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/auth/login";
+        if (photoFile.isEmpty() || !(photoFile.getOriginalFilename().endsWith(".png")
+                || photoFile.getOriginalFilename().endsWith(".jpg")
+                || photoFile.getOriginalFilename().endsWith(".jpeg"))) {
+            redirectAttributes.addFlashAttribute("error", "Please upload a valid image file (PNG/JPG/JPEG).");
+            return "redirect:/profile";
+        }
+
+        String ext = photoFile.getOriginalFilename().substring(photoFile.getOriginalFilename().lastIndexOf('.'));
+        String fileName = "profile_" + user.getId() + "_" + System.currentTimeMillis() + ext;
+        Path uploadPath = Paths.get("src/main/webapp/uploads/profile");
+        try {
+            if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(photoFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            user.setProfileImageUrl("/uploads/profile/" + fileName);
+            userRepository.save(user);
+            redirectAttributes.addFlashAttribute("success", "Profile photo uploaded successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Failed to upload photo.");
+        }
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/remove-photo")
+    public String removeProfilePhoto(HttpSession session, RedirectAttributes redirectAttributes) {
+        User user = (User) session.getAttribute("loggedUser");
+        if (user == null) return "redirect:/auth/login";
+        String photoUrl = user.getProfileImageUrl();
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            Path filePath = Paths.get("src/main/webapp" + photoUrl);
+            try {
+                if (Files.exists(filePath)) Files.delete(filePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        user.setProfileImageUrl(null);
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("success", "Profile photo removed.");
+        return "redirect:/profile";
+    }
 }

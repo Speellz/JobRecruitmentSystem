@@ -19,7 +19,7 @@
 </head>
 <body class="bg-light">
 
-<jsp:include page="navbar.jsp" />
+<%@ include file="navbar.jsp" %>
 
 <div class="container py-4">
     <jsp:include page="messages.jsp"/>
@@ -27,7 +27,6 @@
         <h2 class="text-primary">Latest Job Postings</h2>
         <div class="d-flex justify-content-between align-items-center flex-wrap mt-3">
 
-            <!-- Sol kısım -->
             <div class="d-flex gap-3 flex-wrap">
                 <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="form-control" style="max-width: 300px;">
 
@@ -127,6 +126,10 @@
 
                             <sec:authorize access="hasAuthority('APPLICANT')">
                                 <c:choose>
+                                    <c:when test="${approvedMap[job.id]}">
+                                        <span class="btn btn-sm btn-success disabled">Approved</span>
+                                        <a href="${pageContext.request.contextPath}/messages/application/${applicationIdMap[job.id]}" class="btn btn-sm btn-primary">Chat</a>
+                                    </c:when>
                                     <c:when test="${appliedMap[job.id]}">
                                         <span class="btn btn-sm btn-secondary disabled">Already Applied</span>
                                     </c:when>
@@ -135,6 +138,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </sec:authorize>
+
 
                             <sec:authorize access="!isAuthenticated()">
                                 <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-sm btn-outline-dark">Login to Apply</a>

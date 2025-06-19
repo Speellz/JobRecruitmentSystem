@@ -60,4 +60,8 @@ public class User {
 
     @Column(name = "cv_url")
     private String cvUrl;
+
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
 }

@@ -1,5 +1,6 @@
 package com.jobrecruitment.model.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jobrecruitment.model.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -17,7 +18,9 @@ public class UserNotification {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
+
 
     private String message;
 

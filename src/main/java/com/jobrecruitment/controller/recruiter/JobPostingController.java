@@ -3,10 +3,7 @@ package com.jobrecruitment.controller.recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.recruiter.*;
-import com.jobrecruitment.repository.recruiter.JobCategoryRepository;
-import com.jobrecruitment.repository.recruiter.JobPostingRepository;
-import com.jobrecruitment.repository.recruiter.JobSkillRepository;
-import com.jobrecruitment.repository.recruiter.RecruiterRepository;
+import com.jobrecruitment.repository.recruiter.*;
 import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
@@ -35,14 +32,10 @@ public class JobPostingController {
     private JobCategoryRepository jobCategoryRepository;
 
     @Autowired
-    private ApplicationRepository ApplicationRepository;
-
-    @Autowired
     private JobSkillRepository jobSkillRepository;
 
     @Autowired
-    private UserNotificationService userNotificationService;
-
+    private RecruiterAnalyticsRepository recruiterAnalyticsRepository;
 
 
     @PostMapping("/recruiter/job/add")
@@ -98,9 +91,18 @@ public class JobPostingController {
             }
         }
 
+        if (recruiter != null) {
+            RecruiterAnalytics analytics = recruiterAnalyticsRepository.findByRecruiterId(recruiter.getId().longValue());
+            if (analytics != null) {
+                analytics.setTotalPosts(analytics.getTotalPosts() + 1);
+                recruiterAnalyticsRepository.save(analytics);
+            }
+        }
+
         redirectAttributes.addFlashAttribute("success", "Job successfully posted.");
         return "redirect:/";
     }
+
 
     @GetMapping("/recruiter/job/{id}/edit")
     public String editJobForm(@PathVariable Integer id, Model model, HttpSession session) {

@@ -5,10 +5,12 @@ import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.applicant.ApplicationStatus;
 import com.jobrecruitment.model.recruiter.JobPosting;
 import com.jobrecruitment.model.recruiter.Recruiter;
+import com.jobrecruitment.model.recruiter.RecruiterAnalytics;
 import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.repository.applicant.ReferralRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
+import com.jobrecruitment.repository.recruiter.RecruiterAnalyticsRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
@@ -33,6 +35,7 @@ public class RecruiterApplicationController {
     private final InterviewScheduleRepository interviewScheduleRepository;
     private final ReferralRepository referralRepository;
     private final UserNotificationService userNotificationService;
+    private final RecruiterAnalyticsRepository recruiterAnalyticsRepository;
 
     @GetMapping("/job/{jobId}/applications")
     public String viewApplications(@PathVariable Integer jobId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
@@ -97,16 +100,17 @@ public class RecruiterApplicationController {
             return "redirect:/recruiter/index";
         }
 
-        app.setStatus(ApplicationStatus.APPROVED);
+        // Mülakat planlaması için ara durum
+        app.setStatus(ApplicationStatus.APPROVAL_PENDING_INTERVIEW);
         applicationRepository.save(app);
 
         userNotificationService.sendNotification(
                 app.getApplicant(),
-                "Your application for \"" + app.getJob().getTitle() + "\" has been approved.",
+                "Your application for \"" + app.getJob().getTitle() + "\" is pending interview scheduling.",
                 "/applicant/applications"
         );
 
-        redirectAttributes.addFlashAttribute("success", "Application approved successfully.");
+        redirectAttributes.addFlashAttribute("success", "Application approved pending interview scheduling.");
         return "redirect:/recruiter/interview/schedule/" + app.getId();
     }
 

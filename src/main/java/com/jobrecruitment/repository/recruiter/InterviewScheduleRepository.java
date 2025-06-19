@@ -22,4 +22,7 @@ public interface InterviewScheduleRepository extends JpaRepository<InterviewSche
     Optional<InterviewSchedule> findByApplicantIdAndJobId(Long applicantId, Long jobId);
 
     List<InterviewSchedule> findByRecruiter_IdAndTimeBefore(Long recruiterId, LocalDateTime time);
+
+    List<InterviewSchedule> findByApplicant_IdAndTimeBefore(Long applicantId, LocalDateTime time);
+
 }

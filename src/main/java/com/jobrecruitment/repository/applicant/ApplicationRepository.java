@@ -21,4 +21,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
 
     @Query("SELECT COUNT(a) > 0 FROM Application a WHERE a.job.id = :jobId AND a.applicant.id = :applicantId")
     boolean existsByJobIdAndApplicantId(@Param("jobId") Integer jobId, @Param("applicantId") Long applicantId);
+
 }

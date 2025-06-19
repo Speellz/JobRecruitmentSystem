@@ -3,6 +3,10 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page import="com.jobrecruitment.controller.common.DateFormatterUtil" %>
 
+<c:set var="profileImageSrc" value="${empty user.profileImageUrl
+    ? pageContext.request.contextPath.concat('/img/default-profile.png')
+    : pageContext.request.contextPath.concat(user.profileImageUrl)}" />
+
 <html>
 <head>
     <meta charset="UTF-8">
@@ -30,13 +34,26 @@
 <div class="container my-5">
     <jsp:include page="messages.jsp"/>
     <div class="card p-4 d-flex flex-row align-items-center gap-3">
-        <img src="<%= request.getContextPath() %>/img/default-profile.png" alt="Profile Image" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;">
+        <div class="profile-image-box position-relative d-inline-block mb-3">
+            <img src="${profileImageSrc}"
+                 alt="Profile Image"
+                 class="rounded-circle border shadow"
+                 style="width:110px;height:110px;object-fit:cover;">
+
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm position-absolute bottom-0 end-0"
+                    data-bs-toggle="modal" data-bs-target="#photoModal"
+                    style="border-radius:50%;">
+                <i class="fa fa-camera"></i>
+            </button>
+        </div>
         <div>
             <h2 class="mb-1">${user.name}</h2>
             <p class="mb-0">${user.email}</p>
             <p class="text-muted">Role: ${user.role}</p>
         </div>
     </div>
+
 
     <div class="mt-4">
         <c:if test="${user.role eq 'RECRUITER'}">
@@ -59,6 +76,51 @@
                 <p><strong>Average Response Time:</strong> ${analytics.averageHiringTime} days</p>
                 <p><strong>Applications Reviewed:</strong> ${analytics.totalHires}</p>
             </div>
+
+            <div class="card p-4 mb-3">
+                <h5 class="card-title">Performance Chart</h5>
+                <canvas id="recruiterChart" height="150"></canvas>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const ctx = document.getElementById('recruiterChart').getContext('2d');
+                const recruiterChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Job Posts', 'Applications Reviewed', 'Avg Hiring Time'],
+                        datasets: [{
+                            label: 'Metrics',
+                            data: [
+                                ${analytics.totalPosts},
+                                ${analytics.totalHires},
+                                ${analytics.averageHiringTime}
+                            ],
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            </script>
+
         </c:if>
 
         <c:if test="${user.role eq 'APPLICANT'}">
@@ -117,7 +179,6 @@
                     </c:forEach>
                 </ul>
             </div>
-
 
             <!-- Employment -->
             <div class="card p-4 mb-3">
@@ -308,6 +369,41 @@
 
         </c:if>
     </div>
+
+    <!-- PROFILE PHOTO MODAL -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel">Manage Profile Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+
+                    <img id="photoPreview"
+                         src="${profileImageSrc}"
+                         alt="Profile Image"
+                         class="rounded mb-3 border"
+                         style="width:120px;height:120px;object-fit:cover;"/>
+
+                    <form action="${pageContext.request.contextPath}/profile/upload-photo"
+                          method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <input type="file" name="photoFile" class="form-control mb-3" accept="image/*" required onchange="previewPhoto(this)">
+                        <button type="submit" class="btn btn-primary me-2">Change Photo</button>
+                    </form>
+
+                    <form action="${pageContext.request.contextPath}/profile/remove-photo"
+                          method="post" class="mt-2">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-danger">Remove Photo</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 </body>
 </html>
@@ -332,3 +428,16 @@
         }
     }
 </script>
+
+<script>
+    function previewPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+

@@ -51,18 +51,23 @@ public class HomeController {
         List<JobPosting> jobList;
         Map<Integer, Boolean> appliedMap = new HashMap<>();
         Map<Integer, Boolean> savedMap = new HashMap<>();
+        Map<Integer, Boolean> approvedMap = new HashMap<>();
+        Map<Integer, Integer> applicationIdMap = new HashMap<>();
 
         if (user == null || user.getRole().name().equals("APPLICANT")) {
             jobList = jobPostingRepository.findByStatus("Open");
 
             if (user != null) {
                 List<Application> applications = applicationRepository.findByApplicantId(user.getId().intValue());
-                Set<Integer> appliedJobIds = applications.stream()
-                        .map(app -> app.getJob().getId())
-                        .collect(Collectors.toSet());
 
-                for (JobPosting job : jobList) {
-                    appliedMap.put(job.getId(), appliedJobIds.contains(job.getId()));
+                for (Application app : applications) {
+                    int jobId = app.getJob().getId();
+                    appliedMap.put(jobId, true);
+                    applicationIdMap.put(jobId, app.getId());
+
+                    if (app.getStatus().name().equals("APPROVED")) {
+                        approvedMap.put(jobId, true);
+                    }
                 }
 
                 List<SavedJob> savedJobs = savedJobRepository.findByApplicantId(user.getId());
@@ -72,6 +77,8 @@ public class HomeController {
 
                 mav.addObject("appliedMap", appliedMap);
                 mav.addObject("savedMap", savedMap);
+                mav.addObject("approvedMap", approvedMap);
+                mav.addObject("applicationIdMap", applicationIdMap);
             }
 
         } else if (user.getRole().name().equals("COMPANY")) {

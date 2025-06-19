@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
 </head>
 <body class="bg-light">
 <jsp:include page="navbar.jsp" />
@@ -44,7 +43,21 @@
             </ul>
 
             <sec:authorize access="hasAuthority('APPLICANT')">
-                <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="btn btn-primary">Apply Now</a>
+                <c:choose>
+                    <c:when test="${appliedMap[job.id]}">
+                        <span class="btn btn-secondary disabled">Already Applied</span>
+
+                        <c:if test="${not empty applicationId}">
+                            <a href="${pageContext.request.contextPath}/messages/application/${applicationId}"
+                               class="btn btn-outline-primary ms-2">
+                                💬 Message Recruiter
+                            </a>
+                        </c:if>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="btn btn-primary">Apply Now</a>
+                    </c:otherwise>
+                </c:choose>
             </sec:authorize>
 
             <sec:authorize access="!isAuthenticated()">

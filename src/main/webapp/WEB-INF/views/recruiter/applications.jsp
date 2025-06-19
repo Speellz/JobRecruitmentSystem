@@ -41,13 +41,24 @@
 
                     <p><strong>Cover Letter:</strong><br>${application.coverLetter}</p>
 
-                    <div class="d-flex gap-2 mb-2">
+                    <div class="d-flex gap-2 mb-2 flex-wrap">
                         <a href="${application.cvUrl}" target="_blank" class="btn btn-sm btn-outline-primary">📄 View CV</a>
                         <a href="${pageContext.request.contextPath}/recruiter/application/${application.applicant.id}/profile"
                            class="btn btn-sm btn-outline-info">👤 View Profile</a>
+
+                        <c:choose>
+                            <c:when test="${messageExistsMap[application.id]}">
+                                <a href="${pageContext.request.contextPath}/messages/application/${application.id}"
+                                   class="btn btn-sm btn-outline-primary">💬 Continue Chat</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/messages/application/${application.id}"
+                                   class="btn btn-sm btn-outline-secondary">💬 Start Chat</a>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
 
-                    <div class="d-flex gap-2 mt-3">
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
                         <c:if test="${application.status == 'PENDING'}">
                             <form method="post" action="/recruiter/application/${application.id}/approve">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -74,7 +85,6 @@
                         <a href="${pageContext.request.contextPath}/recruiter/application/${app.referrer.id}/profile"
                            class="btn btn-sm btn-outline-secondary">👤 View Referrer Profile</a>
                     </c:if>
-
                 </div>
             </div>
         </div>
