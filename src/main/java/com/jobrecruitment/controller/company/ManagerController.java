@@ -4,6 +4,7 @@ import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.service.company.BranchService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import com.jobrecruitment.service.common.UserService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class ManagerController {
     private final BranchService branchService;
     private final UserService userService;
     private final RecruiterService recruiterService;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/assign-manager/{id}")
     public String showAssignManagerForm(@PathVariable Integer id, Model model, Principal principal) {
@@ -42,7 +44,18 @@ public class ManagerController {
     public String assignManager(@PathVariable Integer id,
                                 @RequestParam Integer managerId,
                                 RedirectAttributes redirectAttributes) {
+
         branchService.assignManager(id, managerId);
+
+        Recruiter recruiter = recruiterService.getById(managerId);
+        if (recruiter != null && recruiter.getUser() != null) {
+            userNotificationService.sendNotification(
+                    recruiter.getUser(),
+                    "You have been assigned as the manager of branch ID " + id + ".",
+                    "/recruiter/dashboard"
+            );
+        }
+
         redirectAttributes.addFlashAttribute("success", "Manager assigned successfully.");
         return "redirect:/company/branches";
     }
@@ -65,6 +78,16 @@ public class ManagerController {
                                 RedirectAttributes redirectAttributes) {
         if (managerId != null) {
             branchService.assignManager(branchId, managerId);
+
+            Recruiter recruiter = recruiterService.getById(managerId);
+            if (recruiter != null && recruiter.getUser() != null) {
+                userNotificationService.sendNotification(
+                        recruiter.getUser(),
+                        "Your manager assignment for branch ID " + branchId + " has been updated.",
+                        "/recruiter/dashboard"
+                );
+            }
+
             redirectAttributes.addFlashAttribute("success", "Manager updated successfully.");
         } else {
             branchService.removeManager(branchId);
@@ -76,6 +99,16 @@ public class ManagerController {
     @PostMapping("/remove-manager/{id}")
     public String removeManager(@PathVariable("id") Integer branchId,
                                 RedirectAttributes redirectAttributes) {
+
+        Branch branch = branchService.getBranchById(branchId);
+        if (branch != null && branch.getManager() != null) {
+            userNotificationService.sendNotification(
+                    branch.getManager(),
+                    "You have been removed as the manager of branch ID " + branchId + ".",
+                    "/recruiter/dashboard"
+            );
+        }
+
         branchService.removeManager(branchId);
         redirectAttributes.addFlashAttribute("success", "Manager removed successfully.");
         return "redirect:/company/managers";

@@ -25,6 +25,9 @@ public class EmploymentHistory {
     @Column(name = "end_date")
     private String endDate;
 
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

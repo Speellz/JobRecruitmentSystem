@@ -4,6 +4,7 @@ import com.jobrecruitment.model.company.Company;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.company.CompanyService;
 import com.jobrecruitment.service.common.UserService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class AddCompanyController {
 
     private final CompanyService companyService;
     private final UserService userService;
+    private final UserNotificationService userNotificationService;
 
     @PostMapping("/add-company")
     public String registerCompany(@ModelAttribute("company") @Valid Company company,
@@ -56,6 +58,13 @@ public class AddCompanyController {
             user.setCompany(company);
             userService.saveUser(user);
             session.setAttribute("userCompany", company);
+
+            userNotificationService.sendNotification(
+                    user,
+                    "Your company registration is submitted and pending admin approval.",
+                    "/company/dashboard"
+            );
+
             redirectAttributes.addFlashAttribute("success", "Company registered successfully and pending admin approval.");
             return "redirect:/";
         } else {

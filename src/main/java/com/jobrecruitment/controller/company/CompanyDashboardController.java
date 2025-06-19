@@ -8,6 +8,7 @@ import com.jobrecruitment.repository.company.BranchRepository;
 import com.jobrecruitment.repository.company.CompanyRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,7 @@ public class CompanyDashboardController {
     private final BranchRepository branchRepository;
     private final RecruiterRepository recruiterRepository;
     private final JobPostingRepository jobPostingRepository;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/company/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -59,7 +61,6 @@ public class CompanyDashboardController {
         return "company/dashboard";
     }
 
-
     @PostMapping("/company/upload-logo")
     public String uploadLogo(@RequestParam("logo") MultipartFile file,
                              HttpSession session) throws IOException {
@@ -82,6 +83,12 @@ public class CompanyDashboardController {
 
             company.setLogoPath(fileName);
             companyRepository.save(company);
+
+            userNotificationService.sendNotification(
+                    user,
+                    "You updated your company logo.",
+                    "/company/dashboard"
+            );
         }
 
         return "redirect:/company/dashboard";
@@ -102,6 +109,12 @@ public class CompanyDashboardController {
 
         company.setLogoPath(null);
         companyRepository.save(company);
+
+        userNotificationService.sendNotification(
+                user,
+                "You removed your company logo.",
+                "/company/dashboard"
+        );
 
         return "redirect:/company/dashboard";
     }
@@ -125,8 +138,13 @@ public class CompanyDashboardController {
         company.setWebsite(website);
         companyRepository.save(company);
 
+        userNotificationService.sendNotification(
+                user,
+                "You updated your company information.",
+                "/company/dashboard"
+        );
+
         redirectAttributes.addFlashAttribute("success", "Company info updated successfully!");
         return "redirect:/company/dashboard";
     }
-
 }

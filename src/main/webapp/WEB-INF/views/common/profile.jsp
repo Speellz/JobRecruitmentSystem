@@ -9,6 +9,7 @@
     <title>Profile</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script>
         function toggleEditForm(section) {
             const form = document.getElementById(section + '-form');
@@ -68,6 +69,7 @@
                     <button class="btn btn-outline-primary btn-sm" onclick="toggleEditForm('education')">+ Add</button>
                 </div>
 
+                <!-- Add Form -->
                 <div id="education-form" class="mt-3" style="display:none;">
                     <form method="post" action="${pageContext.request.contextPath}/applicant/education/add">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
@@ -77,34 +79,35 @@
                             <div class="col"><input class="form-control" name="fieldOfStudy" placeholder="Field of Study" required></div>
                         </div>
                         <div class="row g-2 mb-2">
-                            <div class="col"><input class="form-control" name="startDate" placeholder="Start Date" required></div>
-                            <div class="col"><input class="form-control" name="endDate" placeholder="End Date" required></div>
+                            <div class="col"><input class="form-control" type="date" name="startDate" placeholder="Start Date" required></div>
+                            <div class="col"><input class="form-control" type="date" name="endDate" placeholder="End Date" required></div>
                         </div>
                         <button class="btn btn-primary">Save</button>
                     </form>
                 </div>
 
+                <!-- Education List -->
                 <ul class="list-group list-group-flush mt-3">
                     <c:forEach var="edu" items="${educationList}">
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span>${edu.institutionName} - ${edu.degree} (${edu.startDate} to ${edu.endDate})</span>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('${edu.id}')">Edit</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('edu-${edu.id}')">Edit</button>
                             </div>
 
-                            <div id="edit-row-${edu.id}" style="display: none;" class="mt-3">
+                            <div id="edit-row-edu-${edu.id}" style="display: none;" class="mt-3">
                                 <form method="post" action="${pageContext.request.contextPath}/applicant/education/update/${edu.id}" class="row g-2 align-items-center mb-2">
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                     <div class="col"><input class="form-control form-control-sm" name="institutionName" value="${edu.institutionName}" required></div>
                                     <div class="col"><input class="form-control form-control-sm" name="degree" value="${edu.degree}" required></div>
                                     <div class="col"><input class="form-control form-control-sm" name="fieldOfStudy" value="${edu.fieldOfStudy}" required></div>
-                                    <div class="col"><input class="form-control form-control-sm" name="startDate" value="${edu.startDate}" required></div>
-                                    <div class="col"><input class="form-control form-control-sm" name="endDate" value="${edu.endDate}" required></div>
-                                    <div class="col-auto d-flex gap-2">
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="startDate" value="${edu.startDate}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="endDate" value="${edu.endDate}" required></div>
+                                    <div class="col-auto d-flex gap-2 mt-2">
                                         <button class="btn btn-sm btn-success" type="submit">Update</button>
-                                        <button class="btn btn-sm btn-danger" type="button" onclick="toggleEditRow('${edu.id}')">Cancel</button>
+                                        <button class="btn btn-sm btn-danger" type="button" onclick="toggleEditRow('edu-${edu.id}')">Cancel</button>
                                     </div>
-                                    </form>
+                                </form>
                                 <form method="post" action="${pageContext.request.contextPath}/applicant/education/delete/${edu.id}">
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                     <button class="btn btn-sm btn-danger" type="submit">Remove</button>
@@ -114,6 +117,7 @@
                     </c:forEach>
                 </ul>
             </div>
+
 
             <!-- Employment -->
             <div class="card p-4 mb-3">
@@ -129,8 +133,11 @@
                         <div class="row g-2 mb-2">
                             <div class="col"><input class="form-control" name="companyName" placeholder="Company Name" required></div>
                             <div class="col"><input class="form-control" name="jobTitle" placeholder="Job Title" required></div>
-                            <div class="col"><input class="form-control" name="startDate" placeholder="Start Date" required></div>
-                            <div class="col"><input class="form-control" name="endDate" placeholder="End Date" required></div>
+                            <div class="col"><input class="form-control" type="date" name="startDate" placeholder="Start Date" required></div>
+                            <div class="col"><input class="form-control" type="date" name="endDate" placeholder="End Date" required></div>
+                        </div>
+                        <div class="mb-2">
+                            <textarea class="form-control" name="description" placeholder="Job Description (Optional)" rows="2"></textarea>
                         </div>
                         <button class="btn btn-primary">Save</button>
                     </form>
@@ -150,9 +157,12 @@
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                     <div class="col"><input class="form-control form-control-sm" name="companyName" value="${emp.companyName}" required></div>
                                     <div class="col"><input class="form-control form-control-sm" name="jobTitle" value="${emp.jobTitle}" required></div>
-                                    <div class="col"><input class="form-control form-control-sm" name="startDate" value="${emp.startDate}" required></div>
-                                    <div class="col"><input class="form-control form-control-sm" name="endDate" value="${emp.endDate}" required></div>
-                                    <div class="col-auto d-flex gap-2">
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="startDate" value="${emp.startDate}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="endDate" value="${emp.endDate}" required></div>
+                                    <div class="col-12 mt-2">
+                                        <textarea class="form-control form-control-sm" name="description" placeholder="Description" rows="2">${emp.description}</textarea>
+                                    </div>
+                                    <div class="col-auto d-flex gap-2 mt-2">
                                         <button class="btn btn-sm btn-success" type="submit">Update</button>
                                     </div>
                                 </form>
@@ -181,6 +191,10 @@
                             <div class="col"><input class="form-control" name="certificationName" placeholder="Certification Name" required></div>
                             <div class="col"><input class="form-control" name="issuedBy" placeholder="Issued By" required></div>
                         </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col"><input class="form-control" type="date" name="issueDate" placeholder="Issue Date"></div>
+                            <div class="col"><input class="form-control" type="date" name="expirationDate" placeholder="Expiration Date"></div>
+                        </div>
                         <button class="btn btn-primary">Save</button>
                     </form>
                 </div>
@@ -190,7 +204,11 @@
                     <c:forEach var="cert" items="${certificationList}">
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span>${cert.certificationName} (${cert.issuedBy})</span>
+                    <span>
+                        ${cert.certificationName} (${cert.issuedBy})
+                        <c:if test="${not empty cert.issueDate}"> - Issued: ${cert.issueDate}</c:if>
+                        <c:if test="${not empty cert.expirationDate}">, Expires: ${cert.expirationDate}</c:if>
+                    </span>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="toggleEditRow('cert-${cert.id}')">Edit</button>
                             </div>
 
@@ -199,6 +217,8 @@
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                     <div class="col"><input class="form-control form-control-sm" name="certificationName" value="${cert.certificationName}" required></div>
                                     <div class="col"><input class="form-control form-control-sm" name="issuedBy" value="${cert.issuedBy}" required></div>
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="issueDate" value="${cert.issueDate}"></div>
+                                    <div class="col"><input class="form-control form-control-sm" type="date" name="expirationDate" value="${cert.expirationDate}"></div>
                                     <div class="col-auto d-flex gap-2">
                                         <button class="btn btn-sm btn-success" type="submit">Update</button>
                                     </div>
@@ -212,6 +232,7 @@
                     </c:forEach>
                 </ul>
             </div>
+
 
             <!-- Skills -->
             <div class="card p-4 mb-3">
@@ -284,7 +305,6 @@
                     </c:otherwise>
                 </c:choose>
             </div>
-
 
         </c:if>
     </div>

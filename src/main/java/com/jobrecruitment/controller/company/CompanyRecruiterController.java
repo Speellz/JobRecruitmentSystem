@@ -9,6 +9,7 @@ import com.jobrecruitment.repository.UserRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.common.UserService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import com.jobrecruitment.service.recruiter.RecruiterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ public class CompanyRecruiterController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final RecruiterRepository recruiterRepository;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping
     public String listRecruiters(Model model, Principal principal) {
@@ -88,6 +90,12 @@ public class CompanyRecruiterController {
 
         recruiterRepository.save(recruiter);
 
+        userNotificationService.sendNotification(
+                newUser,
+                "You have been registered as a recruiter.",
+                "/recruiter/dashboard"
+        );
+
         redirectAttributes.addFlashAttribute("success", "Recruiter added successfully.");
         return "redirect:/company/recruiters";
     }
@@ -95,6 +103,15 @@ public class CompanyRecruiterController {
     @PostMapping("/delete/{id}")
     public String deleteRecruiter(@PathVariable("id") Integer id,
                                   RedirectAttributes redirectAttributes) {
+        Recruiter recruiter = recruiterService.getById(id);
+        if (recruiter != null && recruiter.getUser() != null) {
+            userNotificationService.sendNotification(
+                    recruiter.getUser(),
+                    "Your recruiter account has been deleted.",
+                    "/"
+            );
+        }
+
         recruiterService.deleteRecruiter(id);
         redirectAttributes.addFlashAttribute("success", "Recruiter deleted successfully.");
         return "redirect:/company/recruiters";

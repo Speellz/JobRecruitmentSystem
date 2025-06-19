@@ -35,7 +35,6 @@ public class RecruiterService {
         return true;
     }
 
-
     public List<Recruiter> getRecruitersByBranch(Branch branch) {
         return recruiterRepository.findByBranch(branch);
     }
@@ -43,6 +42,7 @@ public class RecruiterService {
     public List<Recruiter> findByCompanyId(Integer companyId) {
         return recruiterRepository.findByCompanyId(companyId);
     }
+
     public List<Recruiter> findByBranchId(Integer branchId) {
         return recruiterRepository.findByBranchId(branchId);
     }
@@ -51,9 +51,7 @@ public class RecruiterService {
         recruiterRepository.deleteById(recruiterId);
     }
 
-    public Recruiter getRecruiterById(Integer id) {
+    public Recruiter getById(Integer id) {
         return recruiterRepository.findById(id).orElse(null);
     }
-
-
 }

@@ -13,6 +13,7 @@ import com.jobrecruitment.repository.recruiter.InterviewFeedbackRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.applicant.ApplicationRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -33,10 +34,11 @@ public class JobApplicationController {
 
     private final JobPostingRepository jobPostingRepository;
     private final ApplicationRepository applicationRepository;
-    private final com.jobrecruitment.repository.recruiter.InterviewScheduleRepository interviewScheduleRepository;
+    private final InterviewScheduleRepository interviewScheduleRepository;
     private final InterviewFeedbackRepository interviewFeedbackRepository;
     private final ReferralRepository referralRepository;
     private final UserRepository userRepository;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/job/{id}/apply")
     public String showApplyForm(@PathVariable Integer id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -135,10 +137,18 @@ public class JobApplicationController {
             }
         }
 
+        if (job.getRecruiter() != null && job.getRecruiter().getUser() != null) {
+            User recruiterUser = job.getRecruiter().getUser();
+            userNotificationService.sendNotification(
+                    recruiterUser,
+                    "A new applicant has applied for your job posting: " + job.getTitle(),
+                    "/recruiter/applications"
+            );
+        }
+
         redirectAttributes.addFlashAttribute("success", "Application submitted successfully.");
         return "redirect:/";
     }
-
 
     @GetMapping("/applicant/applications")
     public String getMyApplications(HttpSession session, Model model) {

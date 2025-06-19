@@ -5,6 +5,7 @@ import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.recruiter.InterviewSchedule;
 import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -18,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Controller
 @RequestMapping("/recruiter/interview")
 @RequiredArgsConstructor
@@ -26,6 +26,7 @@ public class InterviewController {
 
     private final InterviewScheduleRepository interviewScheduleRepository;
     private final ApplicationRepository applicationRepository;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/schedule/{applicationId}")
     public String showScheduleForm(@PathVariable Integer applicationId,
@@ -46,7 +47,6 @@ public class InterviewController {
 
         return "recruiter/schedule-interview";
     }
-
 
     @PostMapping("/schedule")
     public String scheduleInterview(@RequestParam Integer applicationId,
@@ -73,9 +73,14 @@ public class InterviewController {
 
         interviewScheduleRepository.save(interview);
 
+        userNotificationService.sendNotification(
+                application.getApplicant(),
+                "An interview has been scheduled for your application.",
+                "/applicant/applications"
+        );
+
         return "redirect:/recruiter/interview/list";
     }
-
 
     @GetMapping("/list")
     public String listInterviews(HttpSession session, Model model) {
@@ -103,6 +108,12 @@ public class InterviewController {
 
         if (interview != null && recruiter != null && interview.getRecruiter().getId().equals(recruiter.getId())) {
             interviewScheduleRepository.deleteById(id);
+
+            userNotificationService.sendNotification(
+                    interview.getApplicant(),
+                    "Your interview has been canceled.",
+                    "/applicant/applications"
+            );
         }
 
         return "redirect:/recruiter/interview/list";
@@ -131,8 +142,12 @@ public class InterviewController {
 
         interviewScheduleRepository.deleteById(id);
 
+        userNotificationService.sendNotification(
+                interview.getApplicant(),
+                "Your interview has been marked for rescheduling.",
+                "/applicant/applications"
+        );
+
         return "recruiter/schedule-interview";
     }
-
-
 }

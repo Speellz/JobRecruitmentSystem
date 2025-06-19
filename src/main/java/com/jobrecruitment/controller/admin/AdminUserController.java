@@ -2,6 +2,7 @@ package com.jobrecruitment.controller.admin;
 
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.common.UserService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ public class AdminUserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/users")
     public String listUsers(Model model) {
@@ -43,6 +45,13 @@ public class AdminUserController {
             user.setPassword(passwordEncoder.encode(password));
             user.setRole(User.Role.valueOf(role));
             userService.saveUser(user);
+
+            userNotificationService.sendNotification(
+                    user,
+                    "Your account has been created by admin.",
+                    "/login"
+            );
+
             redirectAttributes.addFlashAttribute("success", "User created successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to create user.");
@@ -54,7 +63,17 @@ public class AdminUserController {
     @Transactional
     public String deleteUser(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            userService.deleteUser(id);  // artık direkt Long alıyor
+            User deletedUser = userService.getUserById(id);
+            userService.deleteUser(id);
+
+            if (deletedUser != null) {
+                userNotificationService.sendNotification(
+                        deletedUser,
+                        "Your account has been deleted by admin.",
+                        "/"
+                );
+            }
+
             redirectAttributes.addFlashAttribute("success", "User deleted successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to delete user.");
@@ -83,6 +102,13 @@ public class AdminUserController {
                 user.setPassword(existing.getPassword());
             }
             userService.saveUser(user);
+
+            userNotificationService.sendNotification(
+                    user,
+                    "Your account has been updated by admin.",
+                    "/profile"
+            );
+
             redirectAttributes.addFlashAttribute("success", "User updated successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Failed to update user.");

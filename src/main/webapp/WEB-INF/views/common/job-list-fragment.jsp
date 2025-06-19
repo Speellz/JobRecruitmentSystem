@@ -8,7 +8,31 @@
 </c:if>
 
 <c:forEach var="job" items="${jobList}">
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm position-relative">
+
+        <sec:authorize access="hasAuthority('APPLICANT')">
+            <c:choose>
+                <c:when test="${savedMap[job.id]}">
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/saved/remove/${job.id}"
+                          style="position: absolute; top: 10px; right: 10px;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                            <span style="color: gold;">&#9733;</span>
+                        </button>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <form method="post" action="${pageContext.request.contextPath}/applicant/saved/add/${job.id}"
+                          style="position: absolute; top: 10px; right: 10px;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                            <span style="color: #ccc;">&#9733;</span>
+                        </button>
+                    </form>
+                </c:otherwise>
+            </c:choose>
+        </sec:authorize>
+
         <div class="card-body">
             <div class="mb-2">
                 <h5 class="card-title mb-0">${job.title}</h5>

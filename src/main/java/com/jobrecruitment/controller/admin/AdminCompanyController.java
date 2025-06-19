@@ -2,8 +2,10 @@ package com.jobrecruitment.controller.admin;
 
 import com.jobrecruitment.model.company.Branch;
 import com.jobrecruitment.model.company.Company;
+import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.company.BranchService;
 import com.jobrecruitment.service.company.CompanyService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +21,7 @@ public class AdminCompanyController {
 
     private final CompanyService companyService;
     private final BranchService branchService;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping
     public String listApprovedCompanies(Model model,
@@ -43,15 +46,26 @@ public class AdminCompanyController {
         return "admin/company-detail";
     }
 
-
     @PostMapping("/{id}/delete")
     public String deleteCompany(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+        Company company = companyService.findById(id);
+
         boolean result = companyService.deleteCompanyById(id);
         if (result) {
             redirectAttributes.addFlashAttribute("success", "Company deleted successfully.");
+
+            if (company != null && company.getOwner() != null) {
+                User owner = company.getOwner();
+                userNotificationService.sendNotification(
+                        owner,
+                        "Your company \"" + company.getName() + "\" has been deleted by the admin.",
+                        "/"
+                );
+            }
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to delete company.");
         }
+
         return "redirect:/admin/companies";
     }
 }

@@ -82,4 +82,9 @@ public class UserService {
     public String encodePassword(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
+
+    public List<User> findByCompanyId(Integer companyId) {
+        return userRepository.findByCompanyId(companyId);
+    }
+
 }

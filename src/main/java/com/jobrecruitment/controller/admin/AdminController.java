@@ -4,6 +4,7 @@ import com.jobrecruitment.model.company.Company;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.service.company.CompanyService;
 import com.jobrecruitment.service.common.UserService;
+import com.jobrecruitment.service.common.UserNotificationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -19,10 +20,12 @@ public class AdminController {
 
     private final CompanyService companyService;
     private final UserService userService;
+    private final UserNotificationService userNotificationService;
 
-    public AdminController(CompanyService companyService, UserService userService) {
+    public AdminController(CompanyService companyService, UserService userService, UserNotificationService userNotificationService) {
         this.companyService = companyService;
         this.userService = userService;
+        this.userNotificationService = userNotificationService;
     }
 
     @GetMapping("/admin-dashboard")
@@ -52,6 +55,15 @@ public class AdminController {
 
         boolean success = companyService.approveCompany(id, adminId);
         if (success) {
+            Company company = companyService.findById(id);
+            if (company != null && company.getOwner() != null) {
+                userNotificationService.sendNotification(
+                        company.getOwner(),
+                        "Your company \"" + company.getName() + "\" has been approved by the admin.",
+                        "/company/dashboard"
+                );
+            }
+
             redirectAttributes.addFlashAttribute("success", "Company approved successfully.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to approve company.");
@@ -68,8 +80,17 @@ public class AdminController {
             return "redirect:/login";
         }
 
+        Company company = companyService.findById(id);
         boolean success = companyService.rejectCompany(id);
         if (success) {
+            if (company != null && company.getOwner() != null) {
+                userNotificationService.sendNotification(
+                        company.getOwner(),
+                        "Your company \"" + company.getName() + "\" has been rejected by the admin.",
+                        "/"
+                );
+            }
+
             redirectAttributes.addFlashAttribute("success", "Company rejected successfully.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to reject company.");

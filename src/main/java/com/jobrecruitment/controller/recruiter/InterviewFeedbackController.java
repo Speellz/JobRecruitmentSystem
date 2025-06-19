@@ -6,6 +6,7 @@ import com.jobrecruitment.model.recruiter.InterviewResult;
 import com.jobrecruitment.model.recruiter.InterviewSchedule;
 import com.jobrecruitment.repository.recruiter.InterviewFeedbackRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,10 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/recruiter/interview")
@@ -25,6 +23,7 @@ public class InterviewFeedbackController {
 
     private final InterviewScheduleRepository interviewScheduleRepository;
     private final InterviewFeedbackRepository interviewFeedbackRepository;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/feedback")
     public String showFeedbackPage(HttpSession session, Model model) {
@@ -73,8 +72,6 @@ public class InterviewFeedbackController {
         return "recruiter/edit-feedback";
     }
 
-
-
     @PostMapping("/feedback/submit")
     public String submitFeedback(@RequestParam("interviewId") Integer interviewId,
                                  @RequestParam("score") Integer score,
@@ -107,6 +104,12 @@ public class InterviewFeedbackController {
         feedback.setSubmittedBy(recruiter);
 
         interviewFeedbackRepository.save(feedback);
+
+        userNotificationService.sendNotification(
+                interview.getApplicant(),
+                "Your interview result has been submitted. Please check your application.",
+                "/applicant/applications"
+        );
 
         return "redirect:/recruiter/interview/feedback?success=true";
     }
@@ -142,7 +145,12 @@ public class InterviewFeedbackController {
 
         interviewFeedbackRepository.save(feedback);
 
+        userNotificationService.sendNotification(
+                interview.getApplicant(),
+                "Your interview feedback has been updated.",
+                "/applicant/applications"
+        );
+
         return "redirect:/recruiter/interview/feedback?success=updated";
     }
-
 }

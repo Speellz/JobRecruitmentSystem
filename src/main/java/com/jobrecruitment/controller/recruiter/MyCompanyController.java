@@ -8,6 +8,7 @@ import com.jobrecruitment.model.recruiter.RecruiterRole;
 import com.jobrecruitment.repository.company.BranchRepository;
 import com.jobrecruitment.repository.UserRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,7 @@ public class MyCompanyController {
     private final BranchRepository branchRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/recruiter/my-company")
     public String viewMyCompany(Model model, HttpSession session) {
@@ -102,6 +104,12 @@ public class MyCompanyController {
 
         recruiterRepository.save(newRecruiter);
 
+        userNotificationService.sendNotification(
+                newUser,
+                "You have been added as a recruiter by your branch manager.",
+                "/recruiter/dashboard"
+        );
+
         redirectAttributes.addFlashAttribute("success", "Recruiter successfully added.");
         return "redirect:/recruiter/my-company";
     }
@@ -124,6 +132,12 @@ public class MyCompanyController {
 
         Optional<Recruiter> targetOpt = recruiterRepository.findById(id);
         if (targetOpt.isPresent() && targetOpt.get().getBranch().getId().equals(branch.getId())) {
+            User targetUser = targetOpt.get().getUser();
+            userNotificationService.sendNotification(
+                    targetUser,
+                    "Your recruiter account has been removed by your branch manager.",
+                    "/"
+            );
             recruiterRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("success", "Recruiter successfully deleted.");
         } else {

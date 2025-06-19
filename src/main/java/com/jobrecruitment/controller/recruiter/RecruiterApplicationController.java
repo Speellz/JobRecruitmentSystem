@@ -10,6 +10,7 @@ import com.jobrecruitment.repository.applicant.ReferralRepository;
 import com.jobrecruitment.repository.recruiter.InterviewScheduleRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
+import com.jobrecruitment.service.common.UserNotificationService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -31,7 +32,7 @@ public class RecruiterApplicationController {
     private final RecruiterRepository recruiterRepository;
     private final InterviewScheduleRepository interviewScheduleRepository;
     private final ReferralRepository referralRepository;
-
+    private final UserNotificationService userNotificationService;
 
     @GetMapping("/job/{jobId}/applications")
     public String viewApplications(@PathVariable Integer jobId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
@@ -99,11 +100,15 @@ public class RecruiterApplicationController {
         app.setStatus(ApplicationStatus.APPROVED);
         applicationRepository.save(app);
 
-        redirectAttributes.addFlashAttribute("success", "Application approved successfully.");
+        userNotificationService.sendNotification(
+                app.getApplicant(),
+                "Your application for \"" + app.getJob().getTitle() + "\" has been approved.",
+                "/applicant/applications"
+        );
 
+        redirectAttributes.addFlashAttribute("success", "Application approved successfully.");
         return "redirect:/recruiter/interview/schedule/" + app.getId();
     }
-
 
     @PostMapping("/application/{id}/reject")
     public String rejectApplication(@PathVariable Integer id, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -126,6 +131,12 @@ public class RecruiterApplicationController {
 
         app.setStatus(ApplicationStatus.REJECTED);
         applicationRepository.save(app);
+
+        userNotificationService.sendNotification(
+                app.getApplicant(),
+                "Your application for \"" + app.getJob().getTitle() + "\" has been rejected.",
+                "/applicant/applications"
+        );
 
         redirectAttributes.addFlashAttribute("success", "Application rejected.");
         return "redirect:/recruiter/job/" + app.getJob().getId() + "/applications";
@@ -151,6 +162,13 @@ public class RecruiterApplicationController {
         }
 
         Integer jobId = app.getJob().getId();
+
+        userNotificationService.sendNotification(
+                app.getApplicant(),
+                "Your application for \"" + app.getJob().getTitle() + "\" has been removed by the recruiter.",
+                "/applicant/applications"
+        );
+
         applicationRepository.delete(app);
 
         redirectAttributes.addFlashAttribute("success", "Application removed.");

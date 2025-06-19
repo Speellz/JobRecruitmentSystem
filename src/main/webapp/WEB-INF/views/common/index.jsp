@@ -14,6 +14,8 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body class="bg-light">
 
@@ -23,17 +25,29 @@
     <jsp:include page="messages.jsp"/>
     <div class="mb-4">
         <h2 class="text-primary">Latest Job Postings</h2>
-        <div class="d-flex gap-3 flex-wrap mt-3">
-            <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="form-control" style="max-width: 300px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap mt-3">
 
-            <sec:authorize access="hasAuthority('RECRUITER')">
-                <a href="${pageContext.request.contextPath}/recruiter/job/form" class="btn btn-primary">+ Add Job</a>
-            </sec:authorize>
+            <!-- Sol kısım -->
+            <div class="d-flex gap-3 flex-wrap">
+                <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="form-control" style="max-width: 300px;">
+
+                <sec:authorize access="hasAuthority('RECRUITER')">
+                    <a href="${pageContext.request.contextPath}/recruiter/job/form" class="btn btn-primary">+ Add Job</a>
+                </sec:authorize>
+
+                <sec:authorize access="hasAuthority('APPLICANT')">
+                    <a href="${pageContext.request.contextPath}/applicant/applications" class="btn btn-outline-primary">My Applications</a>
+                </sec:authorize>
+            </div>
 
             <sec:authorize access="hasAuthority('APPLICANT')">
-                <a href="${pageContext.request.contextPath}/applicant/applications" class="btn btn-outline-primary ms-2">My Applications</a>
+                <div>
+                    <a href="${pageContext.request.contextPath}/applicant/saved/jobs" class="btn btn-outline-primary">Saved Jobs</a>
+                </div>
             </sec:authorize>
+
         </div>
+
 
         <sec:authorize access="hasAuthority('RECRUITER')">
             <div class="mt-3">
@@ -51,7 +65,31 @@
         </c:if>
 
         <c:forEach var="job" items="${jobList}">
-            <div class="card mb-4 shadow-sm">
+            <div class="card mb-4 shadow-sm position-relative">
+
+                <sec:authorize access="hasAuthority('APPLICANT')">
+                    <c:choose>
+                        <c:when test="${savedMap[job.id]}">
+                            <form method="post" action="${pageContext.request.contextPath}/applicant/saved/remove/${job.id}"
+                                  style="position: absolute; top: 10px; right: 10px;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                                    <span style="color: gold;">&#9733;</span>
+                                </button>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <form method="post" action="${pageContext.request.contextPath}/applicant/saved/add/${job.id}"
+                                  style="position: absolute; top: 10px; right: 10px;">
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                                    <span style="color: #ccc;">&#9733;</span>
+                                </button>
+                            </form>
+                        </c:otherwise>
+                    </c:choose>
+                </sec:authorize>
+
                 <div class="card-body">
                     <div class="mb-2">
                         <h5 class="card-title mb-0">${job.title}</h5>
