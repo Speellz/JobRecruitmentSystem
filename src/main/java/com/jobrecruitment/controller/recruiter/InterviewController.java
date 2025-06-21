@@ -85,6 +85,35 @@ public class InterviewController {
         return "recruiter/interview-list";
     }
 
+    @GetMapping("/schedule/{applicationId}")
+    public String showScheduleForm(@PathVariable Integer applicationId,
+                                   @RequestParam(required = false) String selectedDate,
+                                   HttpSession session,
+                                   Model model,
+                                   RedirectAttributes redirectAttributes) {
+        User recruiter = (User) session.getAttribute("loggedUser");
+        if (recruiter == null) {
+            return "redirect:/login";
+        }
+
+        Application application = applicationRepository.findById(applicationId).orElse(null);
+        if (application == null) {
+            redirectAttributes.addFlashAttribute("error", "Application not found.");
+            return "redirect:/recruiter/interview/list";
+        }
+
+        LocalDate date = selectedDate != null ? LocalDate.parse(selectedDate) : LocalDate.now();
+        List<String> bookedSlots = interviewScheduleRepository.findByDate(date).stream()
+                .map(i -> i.getTime().toLocalTime().truncatedTo(ChronoUnit.HOURS).toString())
+                .toList();
+
+        model.addAttribute("application", application);
+        model.addAttribute("bookedSlots", bookedSlots);
+        model.addAttribute("selectedDate", date.toString());
+
+        return "recruiter/schedule-interview";
+    }
+
     @GetMapping("/cancel/{id}")
     public String cancelInterview(@PathVariable Integer id, HttpSession session) {
         User recruiter = (User) session.getAttribute("loggedUser");
