@@ -11,5 +11,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findByReceiverIdAndIsReadFalse(Long receiverId);
     List<Message> findByApplicationIdOrderBySentAt(Long applicationId);
     Optional<Message> findFirstBySenderIdOrReceiverIdOrderBySentAtDesc(Long senderId, Long receiverId);
-    List<Message> findTop5ByReceiverIdOrderBySentAtDesc(Long receiverId);
+    List<Message> findTop5ByReceiverIdAndApplicationIsNotNullOrderBySentAtDesc(Long receiverId);
 }
