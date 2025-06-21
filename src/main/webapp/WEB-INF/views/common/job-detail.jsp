@@ -48,8 +48,8 @@
                         <span class="btn btn-secondary disabled">Already Applied</span>
 
                         <c:if test="${not empty applicationId}">
-                            <a href="${pageContext.request.contextPath}/messages/application/${applicationId}"
-                               class="btn btn-outline-primary ms-2">
+                            <a href="#" class="btn btn-outline-primary ms-2 chat-link"
+                               data-chat-url="${pageContext.request.contextPath}/messages/application/${applicationId}">
                                 💬 Message Recruiter
                             </a>
                         </c:if>
