@@ -82,7 +82,7 @@
                             style="min-width: 300px; max-height: 400px; overflow-y: auto;">
                             <c:forEach var="msg" items="${latestMessages}">
                                 <li class="mb-2">
-                                    <a class="dropdown-item d-flex align-items-start" href="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
+                                    <a class="dropdown-item d-flex align-items-start chat-link" href="#" data-chat-url="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
                                         <i class="fa-solid fa-comment-dots text-primary me-2 mt-1"></i>
                                         <div>
                                             <div class="fw-bold">${msg.sender.name}</div>
@@ -136,7 +136,7 @@
                             style="min-width: 300px; max-height: 400px; overflow-y: auto;">
                             <c:forEach var="msg" items="${latestMessages}">
                                 <li class="mb-2">
-                                    <a class="dropdown-item d-flex align-items-start" href="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
+                                    <a class="dropdown-item d-flex align-items-start chat-link" href="#" data-chat-url="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
                                         <i class="fa-solid fa-comment-dots text-primary me-2 mt-1"></i>
                                         <div>
                                             <div class="fw-bold">${msg.sender.name}</div>
@@ -217,7 +217,7 @@
                             style="min-width: 300px; max-height: 400px; overflow-y: auto;">
                             <c:forEach var="msg" items="${latestMessages}">
                                 <li class="mb-2">
-                                    <a class="dropdown-item d-flex align-items-start" href="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
+                                    <a class="dropdown-item d-flex align-items-start chat-link" href="#" data-chat-url="${pageContext.request.contextPath}/messages/application/${msg.application.id}">
                                         <i class="fa-solid fa-comment-dots text-primary me-2 mt-1"></i>
                                         <div>
                                             <div class="fw-bold">${msg.sender.name}</div>
@@ -238,3 +238,33 @@
         </div>
     </div>
 </nav>
+
+<!-- Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="chatIframe" src="" style="width:100%;height:70vh;border:0;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.chat-link').forEach(function(el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            var url = this.getAttribute('data-chat-url');
+            var iframe = document.getElementById('chatIframe');
+            iframe.src = url;
+            var modal = new bootstrap.Modal(document.getElementById('chatModal'));
+            modal.show();
+        });
+    });
+});
+</script>
