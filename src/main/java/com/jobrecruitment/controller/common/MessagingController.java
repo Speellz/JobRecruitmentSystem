@@ -56,6 +56,11 @@ public class MessagingController {
         return "redirect:/messages?userId=" + receiverId;
     }
 
+    @GetMapping({"/application", "/application/"})
+    public String applicationRootRedirect() {
+        return "redirect:/";
+    }
+
     @GetMapping("/application/{applicationId}")
     public String applicationChat(@PathVariable Long applicationId, HttpSession session, Model model) {
         User user = (User) session.getAttribute("loggedUser");
