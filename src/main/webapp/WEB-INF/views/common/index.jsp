@@ -30,6 +30,13 @@
             <div class="d-flex gap-3 flex-wrap">
                 <input type="text" id="searchInput" name="q" placeholder="Search jobs by title or keyword..." class="form-control" style="max-width: 300px;">
 
+                <select id="categorySelect" class="form-select" style="max-width: 200px;">
+                    <option value="">All Categories</option>
+                    <c:forEach var="cat" items="${categoryList}">
+                        <option value="${cat.id}" <c:if test="${selectedCategoryId != null && selectedCategoryId == cat.id}">selected</c:if>>${cat.name}</option>
+                    </c:forEach>
+                </select>
+
                 <sec:authorize access="hasAuthority('RECRUITER')">
                     <a href="${pageContext.request.contextPath}/recruiter/job/form" class="btn btn-primary">+ Add Job</a>
                 </sec:authorize>
@@ -183,15 +190,23 @@
 <script>
     const basePath = "${pageContext.request.contextPath}";
 
-    document.getElementById('searchInput').addEventListener('input', function () {
-        const keyword = this.value.trim();
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
 
-        if (keyword === "") {
+    function loadJobs() {
+        const keyword = searchInput.value.trim();
+        const category = categorySelect.value;
+
+        if (keyword === "" && category === "") {
             window.location.href = basePath + "/";
             return;
         }
 
-        fetch(basePath + "/search-live?q=" + encodeURIComponent(keyword), {
+        const params = new URLSearchParams();
+        if (keyword !== "") params.append('q', keyword);
+        if (category !== "") params.append('categoryId', category);
+
+        fetch(basePath + "/search-live?" + params.toString(), {
             headers: {
                 'Accept': 'text/html'
             }
@@ -206,7 +221,10 @@
             .catch(err => {
                 console.error("Search error:", err);
             });
-    });
+    }
+
+    searchInput.addEventListener('input', loadJobs);
+    categorySelect.addEventListener('change', loadJobs);
 </script>
 
 </body>

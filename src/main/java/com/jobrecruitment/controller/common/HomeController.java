@@ -12,6 +12,7 @@ import com.jobrecruitment.repository.applicant.ApplicationRepository;
 import com.jobrecruitment.repository.applicant.SavedJobRepository;
 import com.jobrecruitment.repository.recruiter.JobPostingRepository;
 import com.jobrecruitment.repository.recruiter.RecruiterRepository;
+import com.jobrecruitment.repository.recruiter.JobCategoryRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -35,13 +36,17 @@ public class HomeController {
     private RecruiterRepository recruiterRepository;
 
     @Autowired
+    private JobCategoryRepository jobCategoryRepository;
+
+    @Autowired
     private ApplicationRepository applicationRepository;
 
     @Autowired
     private SavedJobRepository savedJobRepository;
 
     @GetMapping("/")
-    public ModelAndView home(HttpSession session) {
+    public ModelAndView home(@RequestParam(value = "categoryId", required = false) Integer categoryId,
+                             HttpSession session) {
         ModelAndView mav = new ModelAndView("common/index");
 
         User user = (User) session.getAttribute("loggedUser");
@@ -111,15 +116,31 @@ public class HomeController {
             jobList = jobPostingRepository.findAll();
         }
 
+        if (categoryId != null) {
+            jobList = jobList.stream()
+                    .filter(j -> j.getCategory() != null && j.getCategory().getId().equals(categoryId))
+                    .collect(Collectors.toList());
+            mav.addObject("selectedCategoryId", categoryId);
+        }
+
         mav.addObject("jobList", jobList);
+        mav.addObject("categoryList", jobCategoryRepository.findAll());
         return mav;
     }
 
     @GetMapping(value = "/search-live", produces = "text/html")
-    public String searchLive(@RequestParam("q") String q, HttpSession session, Model model) {
+    public String searchLive(@RequestParam(value = "q", required = false) String q,
+                             @RequestParam(value = "categoryId", required = false) Integer categoryId,
+                             HttpSession session, Model model) {
         List<JobPosting> jobList = (q == null || q.isBlank())
                 ? jobPostingRepository.findAll()
                 : jobPostingRepository.searchByTitleOrDescription(q);
+
+        if (categoryId != null) {
+            jobList = jobList.stream()
+                    .filter(j -> j.getCategory() != null && j.getCategory().getId().equals(categoryId))
+                    .collect(Collectors.toList());
+        }
         model.addAttribute("jobList", jobList);
 
         User user = (User) session.getAttribute("loggedUser");
