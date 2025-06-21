@@ -22,10 +22,14 @@ public class Company {
     private String email;
 
     private String phone;
-    private String website;
-    private String status;
 
-    @Column(name = "admin_approved_by", nullable = true)
+    private String website;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CompanyStatus status;
+
+    @Column(name = "admin_approved_by")
     private Integer adminApprovedBy;
 
     @Column(name = "created_at", updatable = false)
@@ -35,7 +39,7 @@ public class Company {
     @Column(name = "logo_path")
     private String logoPath;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 

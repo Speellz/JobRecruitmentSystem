@@ -1,7 +1,11 @@
 package com.jobrecruitment.controller.auth;
 
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.model.company.Company;
+import com.jobrecruitment.model.company.CompanyStatus;
+import com.jobrecruitment.repository.company.CompanyRepository;
 import com.jobrecruitment.service.common.UserService;
+import com.jobrecruitment.service.company.CompanyService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,6 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final UserService userService;
+    private final CompanyService companyService;
+    private final CompanyRepository companyRepository;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -63,7 +69,20 @@ public class AuthController {
 
         user.setPassword(userService.encodePassword(user.getPassword()));
         user.setRole(User.Role.COMPANY);
-        userService.saveUser(user);
+
+        User savedUser = userService.saveUser(user);
+
+        Company company = new Company();
+        company.setName("Unnamed Company");
+        company.setEmail(savedUser.getEmail());
+        company.setStatus(CompanyStatus.NEW);
+
+        company.setOwner(savedUser);
+
+        companyRepository.save(company);
+
+        savedUser.setCompany(company);
+        userService.saveUser(savedUser);
 
         redirectAttributes.addFlashAttribute("success", "Company account created. Please log in.");
         return "redirect:/auth/login";

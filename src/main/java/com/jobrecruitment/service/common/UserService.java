@@ -23,8 +23,8 @@ public class UserService {
     @Lazy
     private final PasswordEncoder passwordEncoder;
 
-    public void saveUser(User user) {
-        userRepository.save(user);
+    public User saveUser(User user) {
+        return userRepository.save(user);
     }
 
     public User findByEmail(String email) {
@@ -87,4 +87,7 @@ public class UserService {
         return userRepository.findByCompanyId(companyId);
     }
 
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
 }

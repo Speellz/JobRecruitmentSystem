@@ -1,6 +1,7 @@
 package com.jobrecruitment.config;
 
 import com.jobrecruitment.model.User;
+import com.jobrecruitment.model.company.CompanyStatus;
 import com.jobrecruitment.repository.UserRepository;
 import com.jobrecruitment.service.common.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -56,25 +57,27 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/company/remove-logo").hasAuthority("COMPANY")
 
                         .requestMatchers(HttpMethod.POST, "/recruiter/job/*/update").hasAnyAuthority("RECRUITER", "COMPANY")
+                        .requestMatchers("/recruiter/job/**").hasAnyAuthority("RECRUITER", "ADMIN")
                         .requestMatchers("/recruiter/job/*/edit").hasAnyAuthority("RECRUITER", "COMPANY")
 
-                        .requestMatchers("/recruiter/**").hasAuthority("RECRUITER")
-                        .requestMatchers(HttpMethod.POST, "/recruiter/application/**").hasAuthority("RECRUITER")
+                        .requestMatchers("/recruiter/application/**").hasAnyAuthority("RECRUITER", "COMPANY")
+                        .requestMatchers(HttpMethod.POST, "/recruiter/application/**").hasAnyAuthority("RECRUITER", "COMPANY")
 
                         .requestMatchers("/applicant/**").hasAuthority("APPLICANT")
                         .requestMatchers("/applicant/skills/**").hasAuthority("APPLICANT")
+
+                        .requestMatchers("/admin/job/**").hasAuthority("ADMIN")
+
 
                         .requestMatchers(HttpMethod.POST, "/auth/set-role").permitAll()
                         .anyRequest().permitAll()
                 )
 
-
-
                 .formLogin(form -> form
-                        .loginPage("/login")
+                        .loginPage("/auth/login")
                         .loginProcessingUrl("/perform_login")
                         .successHandler(authenticationSuccessHandler())
-                        .failureUrl("/login?error=true")
+                        .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -83,6 +86,9 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll()
+                )
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 );
 
         return http.build();
@@ -96,14 +102,25 @@ public class SecurityConfig {
             if (user != null) {
                 HttpSession session = request.getSession();
                 session.setAttribute("loggedUser", user);
+
                 if (user.getCompany() != null) {
                     session.setAttribute("userCompany", user.getCompany());
                 }
+
+
+                if (user.getRole() == User.Role.COMPANY) {
+                    if (user.getCompany() == null || user.getCompany().getStatus() != CompanyStatus.APPROVED) {
+                        response.sendRedirect("/company/create");
+                        return;
+                    }
+                }
             }
+
 
             response.sendRedirect("/");
         };
     }
+
 
     @Bean
     public UserDetailsService userDetailsService() {

@@ -47,7 +47,6 @@
 
         </div>
 
-
         <sec:authorize access="hasAuthority('RECRUITER')">
             <div class="mt-3">
                 <a href="${pageContext.request.contextPath}/recruiter/jobs/my-branch"
@@ -58,97 +57,123 @@
         </sec:authorize>
     </div>
 
-    <div id="jobContainer">
-        <c:if test="${empty jobList}">
-            <div class="alert alert-info">No job postings found.</div>
+    <!--pending approval-->
+    <sec:authorize access="hasAuthority('COMPANY')">
+        <c:if test="${sessionScope.userCompany != null && sessionScope.userCompany.status.name() == 'PENDING'}">
+        <div class="alert alert-warning mt-4">
+                <strong>Pending Approval:</strong> Your company is awaiting admin approval. You cannot post jobs or manage recruiters until approval.
+            </div>
         </c:if>
+    </sec:authorize>
+    <c:if test="${empty sessionScope.userCompany or sessionScope.userCompany.status.name() == 'APPROVED'}">
+    <div id="jobContainer">
+            <c:if test="${empty jobList}">
+                <div class="alert alert-info">No job postings found.</div>
+            </c:if>
 
-        <c:forEach var="job" items="${jobList}">
-            <div class="card mb-4 shadow-sm position-relative">
+            <c:forEach var="job" items="${jobList}">
+                <div class="card mb-4 shadow-sm position-relative">
 
-                <sec:authorize access="hasAuthority('APPLICANT')">
-                    <c:choose>
-                        <c:when test="${savedMap[job.id]}">
-                            <form method="post" action="${pageContext.request.contextPath}/applicant/saved/remove/${job.id}"
-                                  style="position: absolute; top: 10px; right: 10px;">
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
-                                    <span style="color: gold;">&#9733;</span>
-                                </button>
-                            </form>
-                        </c:when>
-                        <c:otherwise>
-                            <form method="post" action="${pageContext.request.contextPath}/applicant/saved/add/${job.id}"
-                                  style="position: absolute; top: 10px; right: 10px;">
-                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
-                                    <span style="color: #ccc;">&#9733;</span>
-                                </button>
-                            </form>
-                        </c:otherwise>
-                    </c:choose>
-                </sec:authorize>
+                    <sec:authorize access="hasAuthority('APPLICANT')">
+                        <c:choose>
+                            <c:when test="${savedMap[job.id]}">
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/saved/remove/${job.id}"
+                                      style="position: absolute; top: 10px; right: 10px;">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                                        <span style="color: gold;">&#9733;</span>
+                                    </button>
+                                </form>
+                            </c:when>
+                            <c:otherwise>
+                                <form method="post" action="${pageContext.request.contextPath}/applicant/saved/add/${job.id}"
+                                      style="position: absolute; top: 10px; right: 10px;">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                    <button type="submit" class="btn btn-link p-0 border-0" style="font-size: 20px;">
+                                        <span style="color: #ccc;">&#9733;</span>
+                                    </button>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
+                    </sec:authorize>
 
-                <div class="card-body">
-                    <div class="mb-2">
-                        <h5 class="card-title mb-0">${job.title}</h5>
-                        <small class="text-muted">${job.recruiter.user.name} • ${job.company.name} • ${job.branch.name}</small>
-                    </div>
-                    <p class="card-text mt-2">${job.description}</p>
-
-                    <ul class="list-unstyled">
-                        <li><strong>Position:</strong> ${job.position}</li>
-                        <li><strong>Location:</strong> ${job.location}</li>
-                        <li><strong>Type:</strong> ${job.employmentType}</li>
-                        <li><strong>Salary:</strong> ${job.salaryRange}</li>
-                        <li><strong>Created:</strong> ${df:format(job.createdAt)}</li>
-                    </ul>
-
-                    <div class="d-flex justify-content-between mt-3 flex-wrap gap-2">
-                        <div>
-                            <sec:authorize access="hasAuthority('RECRUITER')">
-                                <c:if test="${job.recruiter.user.id == sessionScope.currentUserId or sessionScope.isManager}">
-                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
-                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
-                                </c:if>
-                            </sec:authorize>
-
-                            <sec:authorize access="hasAuthority('COMPANY')">
-                                <c:if test="${job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id}">
-                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
-                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
-                                </c:if>
-                            </sec:authorize>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <h5 class="card-title mb-0">${job.title}</h5>
+                            <small class="text-muted">${job.recruiter.user.name} • ${job.company.name} • ${job.branch.name}</small>
                         </div>
+                        <p class="card-text mt-2">${job.description}</p>
 
-                        <div>
-                            <a href="${pageContext.request.contextPath}/job/${job.id}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        <ul class="list-unstyled">
+                            <li><strong>Position:</strong> ${job.position}</li>
+                            <li><strong>Location:</strong> ${job.location}</li>
+                            <li><strong>Type:</strong> ${job.employmentType}</li>
+                            <li><strong>Salary:</strong> ${job.salaryRange}</li>
+                            <li><strong>Created:</strong> ${df:format(job.createdAt)}</li>
+                        </ul>
 
-                            <sec:authorize access="hasAuthority('APPLICANT')">
-                                <c:choose>
-                                    <c:when test="${approvedMap[job.id]}">
-                                        <span class="btn btn-sm btn-success disabled">Approved</span>
-                                        <a href="${pageContext.request.contextPath}/messages/application/${applicationIdMap[job.id]}" class="btn btn-sm btn-primary">Chat</a>
-                                    </c:when>
-                                    <c:when test="${appliedMap[job.id]}">
-                                        <span class="btn btn-sm btn-secondary disabled">Already Applied</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="btn btn-sm btn-success">Apply</a>
-                                    </c:otherwise>
-                                </c:choose>
-                            </sec:authorize>
+                        <div class="d-flex justify-content-between mt-3 flex-wrap gap-2">
+                            <div>
+                                <sec:authorize access="hasAuthority('RECRUITER')">
+                                    <c:if test="${job.recruiter.user.id == sessionScope.currentUserId or sessionScope.isManager}">
+                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
+                                    </c:if>
+                                </sec:authorize>
 
+                                <sec:authorize access="hasAuthority('COMPANY')">
+                                    <c:if test="${job.company != null and sessionScope.userCompany != null and job.company.id == sessionScope.userCompany.id}">
+                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/edit" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                        <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications" class="btn btn-outline-secondary btn-sm">View Applications</a>
+                                    </c:if>
+                                </sec:authorize>
 
-                            <sec:authorize access="!isAuthenticated()">
-                                <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-sm btn-outline-dark">Login to Apply</a>
-                            </sec:authorize>
+                                <sec:authorize access="hasAuthority('ADMIN')">
+                                    <a href="${pageContext.request.contextPath}/admin/job/${job.id}/edit"
+                                       class="btn btn-outline-warning btn-sm">Edit</a>
+
+                                    <form action="${pageContext.request.contextPath}/admin/job/${job.id}/delete"
+                                          method="post" style="display:inline;">
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                onclick="return confirm('Are you sure you want to delete this job?');">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                    <a href="${pageContext.request.contextPath}/recruiter/job/${job.id}/applications"
+                                       class="btn btn-outline-info btn-sm">View Applications</a>
+                                </sec:authorize>
+                            </div>
+
+                            <div>
+                                <a href="${pageContext.request.contextPath}/job/${job.id}" class="btn btn-outline-primary btn-sm">View Details</a>
+
+                                <sec:authorize access="hasAuthority('APPLICANT')">
+                                    <c:choose>
+                                        <c:when test="${approvedMap[job.id]}">
+                                            <span class="btn btn-sm btn-success disabled">Approved</span>
+                                            <a href="${pageContext.request.contextPath}/messages/application/${applicationIdMap[job.id]}" class="btn btn-sm btn-primary">Chat</a>
+                                        </c:when>
+                                        <c:when test="${appliedMap[job.id]}">
+                                            <span class="btn btn-sm btn-secondary disabled">Already Applied</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${pageContext.request.contextPath}/job/${job.id}/apply" class="btn btn-sm btn-success">Apply</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </sec:authorize>
+
+                                <sec:authorize access="!isAuthenticated()">
+                                    <a href="${pageContext.request.contextPath}/auth/login" class="btn btn-sm btn-outline-dark">Login to Apply</a>
+                                </sec:authorize>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </c:forEach>
-    </div>
+            </c:forEach>
+        </div>
+    </c:if>
 </div>
 
 <!-- Bootstrap JS -->

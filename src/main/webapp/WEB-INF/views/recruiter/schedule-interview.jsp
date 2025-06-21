@@ -14,6 +14,7 @@
 <div class="container mt-5">
     <div class="card p-4 shadow-sm">
         <h3 class="mb-4">Schedule Interview</h3>
+        <jsp:include page="../common/messages.jsp"/>
 
         <form method="get"
               action="${pageContext.request.contextPath}/recruiter/interview/schedule/${application.id}">
@@ -23,6 +24,7 @@
                        class="form-control"
                        name="selectedDate"
                        value="${selectedDate}"
+                       min="${nowDate}"
                        onchange="this.form.submit()" />
             </div>
         </form>
@@ -39,6 +41,7 @@
                         <c:set var="hourStr" value="${hour lt 10 ? '0' : ''}${hour}:00" />
                         <c:set var="slotTime" value="${selectedDate}T${hourStr}:00" />
                         <c:set var="isBooked" value="false" />
+                        <c:set var="isPast" value="${selectedDate == nowDate && hour < currentHour}" />
 
                         <c:forEach var="booked" items="${bookedSlots}">
                             <c:if test="${booked == hourStr}">
@@ -51,6 +54,7 @@
                                 value="${slotTime}"
                                 class="btn btn-outline-primary"
                                 <c:if test="${isBooked}">disabled</c:if>>
+                            <c:if test="${isBooked || isPast}">disabled</c:if>>
                                 ${hourStr}
                         </button>
                     </c:forEach>

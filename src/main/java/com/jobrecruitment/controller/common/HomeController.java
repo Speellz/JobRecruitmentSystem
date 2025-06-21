@@ -3,6 +3,8 @@ package com.jobrecruitment.controller.common;
 import com.jobrecruitment.model.User;
 import com.jobrecruitment.model.applicant.Application;
 import com.jobrecruitment.model.applicant.SavedJob;
+import com.jobrecruitment.model.company.Company;
+import com.jobrecruitment.model.company.CompanyStatus;
 import com.jobrecruitment.model.recruiter.JobPosting;
 import com.jobrecruitment.model.recruiter.Recruiter;
 import com.jobrecruitment.model.recruiter.RecruiterRole;
@@ -40,15 +42,10 @@ public class HomeController {
 
     @GetMapping("/")
     public ModelAndView home(HttpSession session) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         ModelAndView mav = new ModelAndView("common/index");
 
-        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return new ModelAndView("redirect:/admin/dashboard");
-        }
-
         User user = (User) session.getAttribute("loggedUser");
-        List<JobPosting> jobList;
+        List<JobPosting> jobList = new ArrayList<>();
         Map<Integer, Boolean> appliedMap = new HashMap<>();
         Map<Integer, Boolean> savedMap = new HashMap<>();
         Map<Integer, Boolean> approvedMap = new HashMap<>();
@@ -82,10 +79,16 @@ public class HomeController {
             }
 
         } else if (user.getRole().name().equals("COMPANY")) {
-            Integer companyId = user.getCompany() != null ? user.getCompany().getId() : null;
-            jobList = companyId != null
-                    ? jobPostingRepository.getAllByCompanyId(companyId)
-                    : List.of();
+            Company company = user.getCompany();
+            session.setAttribute("userCompany", company);
+
+            if (company == null) {
+                jobList = new ArrayList<>();
+            } else if (company.getStatus() == CompanyStatus.APPROVED) {
+                jobList = jobPostingRepository.getAllByCompanyId(company.getId());
+            } else {
+                jobList = new ArrayList<>();
+            }
 
         } else if (user.getRole().name().equals("RECRUITER")) {
             Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
@@ -104,8 +107,8 @@ public class HomeController {
                     ? jobPostingRepository.getAllByBranchId(branchId)
                     : List.of();
 
-        } else {
-            jobList = List.of();
+        } else if (user.getRole().name().equals("ADMIN")) {
+            jobList = jobPostingRepository.findAll();
         }
 
         mav.addObject("jobList", jobList);

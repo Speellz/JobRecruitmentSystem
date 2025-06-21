@@ -16,8 +16,8 @@
                 <input class="form-check-input" type="checkbox" id="roleToggle" ${isBusinessPage ? "checked" : ""}>
                 <label class="form-check-label" for="roleToggle">
                     <c:choose>
-                        <c:when test="${isBusinessPage}">Applicant</c:when>
-                        <c:otherwise>Business</c:otherwise>
+                        <c:when test="${isBusinessPage}">Business</c:when>
+                        <c:otherwise>Aplicant</c:otherwise>
                     </c:choose>
                 </label>
             </div>
@@ -45,10 +45,14 @@
 
                 <!-- COMPANY -->
                 <sec:authorize access="hasAuthority('COMPANY')">
-                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/dashboard"><i class="fa-solid fa-building"></i> My Company</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/branches"><i class="fa-solid fa-code-branch"></i> Branches</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/managers"><i class="fa-solid fa-user-tie"></i> Managers</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/recruiters"><i class="fa-solid fa-user-plus"></i> Recruiters</a></li>
+                    <c:choose>
+                        <c:when test="${sessionScope.userCompany != null && sessionScope.userCompany.status.name() == 'APPROVED'}">
+                        <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/dashboard"><i class="fa-solid fa-building"></i> My Company</a></li>
+                            <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/branches"><i class="fa-solid fa-code-branch"></i> Branches</a></li>
+                            <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/managers"><i class="fa-solid fa-user-tie"></i> Managers</a></li>
+                            <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/company/recruiters"><i class="fa-solid fa-user-plus"></i> Recruiters</a></li>
+                        </c:when>
+                    </c:choose>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown-comp" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -99,6 +103,7 @@
 
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/auth/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
                 </sec:authorize>
+
 
                 <!-- APPLICANT -->
                 <sec:authorize access="hasAuthority('APPLICANT')">
@@ -155,7 +160,13 @@
 
                 <!-- ADMIN -->
                 <sec:authorize access="hasAuthority('ADMIN')">
-                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/admin/admin-dashboard"><i class="fa-solid fa-user-shield"></i> Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/admin/admin-dashboard"><i class="fa-solid fa-user-shield"></i> Approve Companies</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/companies"><i class="fa-solid fa-building"></i> Companies</a></li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/users"><i class="fa-solid fa-users"></i> Users</a>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/assign-manager"><i class="fa-solid fa-user-tie"></i> Assign Manager</a></li>
+
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown-admin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fa-solid fa-bell"></i>
@@ -239,6 +250,43 @@
     </div>
 </nav>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("roleToggle");
+
+        if (toggle) {
+            toggle.addEventListener("change", function () {
+                const selectedRole = this.checked ? "business" : "applicant";
+                const csrfToken = document.querySelector('input[name="_csrf"]').value;
+
+                fetch("<%= request.getContextPath() %>/auth/set-role?roleType=" + selectedRole, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": csrfToken
+                    }
+                }).then(() => {
+                    window.location.href = "<%= request.getContextPath() %>/";
+                });
+            });
+        }
+    });
+</script>
+
+<!-- Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="chatIframe" src="" style="width:100%;height:70vh;border:0;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Chat Modal -->
 <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -255,16 +303,16 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.chat-link').forEach(function(el) {
-        el.addEventListener('click', function (e) {
-            e.preventDefault();
-            var url = this.getAttribute('data-chat-url');
-            var iframe = document.getElementById('chatIframe');
-            iframe.src = url;
-            var modal = new bootstrap.Modal(document.getElementById('chatModal'));
-            modal.show();
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.chat-link').forEach(function(el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                var url = this.getAttribute('data-chat-url');
+                var iframe = document.getElementById('chatIframe');
+                iframe.src = url;
+                var modal = new bootstrap.Modal(document.getElementById('chatModal'));
+                modal.show();
+            });
         });
     });
-});
 </script>

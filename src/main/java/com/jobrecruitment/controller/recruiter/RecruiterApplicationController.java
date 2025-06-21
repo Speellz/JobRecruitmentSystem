@@ -40,17 +40,24 @@ public class RecruiterApplicationController {
     @GetMapping("/job/{jobId}/applications")
     public String viewApplications(@PathVariable Integer jobId, HttpSession session, Model model, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("loggedUser");
-        if (user == null || !user.getRole().name().equals("RECRUITER")) {
-            return "redirect:/login";
+        if (user == null || !(user.getRole().name().equals("RECRUITER") || user.getRole().name().equals("ADMIN"))) {
+            return "redirect:/auth/login";
         }
 
-        Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
         JobPosting job = jobPostingRepository.findById(jobId).orElse(null);
-
-        if (job == null || !job.getBranch().getId().equals(recruiter.getBranch().getId())) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized access or job not found.");
-            return "redirect:/recruiter/index";
+        if (job == null) {
+            redirectAttributes.addFlashAttribute("error", "Job not found.");
+            return "redirect:/";
         }
+
+        if (user.getRole().name().equals("RECRUITER")) {
+            Recruiter recruiter = recruiterRepository.findByUserId(user.getId());
+            if (recruiter == null || !job.getBranch().getId().equals(recruiter.getBranch().getId())) {
+                redirectAttributes.addFlashAttribute("error", "Unauthorized access.");
+                return "redirect:/recruiter/index";
+            }
+        }
+
 
         List<Application> applications = applicationRepository.findByJobId(jobId);
 
@@ -81,6 +88,8 @@ public class RecruiterApplicationController {
         return "recruiter/applications";
     }
 
+
+
     @PostMapping("/application/{id}/approve")
     public String approveApplication(@PathVariable Integer id, HttpSession session, RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("loggedUser");
@@ -100,8 +109,7 @@ public class RecruiterApplicationController {
             return "redirect:/recruiter/index";
         }
 
-        // Mülakat planlaması için ara durum
-        app.setStatus(ApplicationStatus.APPROVAL_PENDING_INTERVIEW);
+        app.setStatus(ApplicationStatus.APPROVED);
         applicationRepository.save(app);
 
         userNotificationService.sendNotification(

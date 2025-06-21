@@ -1,6 +1,7 @@
 package com.jobrecruitment.repository.company;
 
 import com.jobrecruitment.model.company.Company;
+import com.jobrecruitment.model.company.CompanyStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,6 @@ import java.util.Optional;
 public interface CompanyRepository extends JpaRepository<Company, Integer> {
     Optional<Company> findByEmail(String email);
     Optional<Company> findByOwnerId(Long ownerId);
-    List<Company> findByStatus(String status);
+    List<Company> findByStatus(CompanyStatus status);
 
 }
