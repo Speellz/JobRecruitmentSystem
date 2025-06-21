@@ -52,7 +52,12 @@ public class InterviewController {
         interview.setRecruiter(recruiter);
         interview.setJob(application.getJob());
         interview.setStatus("SCHEDULED");
-        interview.setTime(LocalDateTime.parse(time));
+        LocalDateTime interviewTime = LocalDateTime.parse(time);
+        if (interviewTime.isBefore(LocalDateTime.now())) {
+            redirectAttributes.addFlashAttribute("error", "Cannot schedule an interview in the past.");
+            return "redirect:/recruiter/interview/schedule/" + applicationId;
+        }
+        interview.setTime(interviewTime);
 
         interviewScheduleRepository.save(interview);
 
@@ -102,14 +107,26 @@ public class InterviewController {
             return "redirect:/recruiter/interview/list";
         }
 
-        LocalDate date = selectedDate != null ? LocalDate.parse(selectedDate) : LocalDate.now();
+        LocalDate today = LocalDate.now();
+        LocalDate date = selectedDate != null ? LocalDate.parse(selectedDate) : today;
+        if (date.isBefore(today)) {
+            date = today;
+        }
+
         List<String> bookedSlots = interviewScheduleRepository.findByDate(date).stream()
                 .map(i -> i.getTime().toLocalTime().truncatedTo(ChronoUnit.HOURS).toString())
                 .toList();
 
+        int currentHour = LocalDateTime.now().getHour();
+        if (LocalDateTime.now().getMinute() > 0) {
+            currentHour += 1;
+        }
+
         model.addAttribute("application", application);
         model.addAttribute("bookedSlots", bookedSlots);
         model.addAttribute("selectedDate", date.toString());
+        model.addAttribute("nowDate", today.toString());
+        model.addAttribute("currentHour", currentHour);
 
         return "recruiter/schedule-interview";
     }
@@ -149,9 +166,16 @@ public class InterviewController {
                 .map(i -> i.getTime().toLocalTime().truncatedTo(ChronoUnit.HOURS).toString())
                 .toList();
 
+        int currentHour = LocalDateTime.now().getHour();
+        if (LocalDateTime.now().getMinute() > 0) {
+            currentHour += 1;
+        }
+
         model.addAttribute("application", application);
         model.addAttribute("bookedSlots", bookedSlots);
         model.addAttribute("nowDate", today.toString());
+        model.addAttribute("selectedDate", today.toString());
+        model.addAttribute("currentHour", currentHour);
 
         interviewScheduleRepository.deleteById(id);
 
