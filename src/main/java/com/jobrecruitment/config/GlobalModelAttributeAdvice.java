@@ -35,7 +35,8 @@ public class GlobalModelAttributeAdvice {
     public List<Message> globalMessages(HttpSession session) {
         User user = (User) session.getAttribute("loggedUser");
         if (user == null) return Collections.emptyList();
-        return messageRepository.findTop5ByReceiverIdOrderBySentAtDesc(user.getId());
+        return messageRepository
+                .findTop5ByReceiverIdAndApplicationIsNotNullOrderBySentAtDesc(user.getId());
     }
 
 }
