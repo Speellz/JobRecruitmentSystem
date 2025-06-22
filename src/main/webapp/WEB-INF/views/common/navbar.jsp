@@ -162,10 +162,7 @@
                 <sec:authorize access="hasAuthority('ADMIN')">
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath() %>/admin/admin-dashboard"><i class="fa-solid fa-user-shield"></i> Approve Companies</a></li>
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/companies"><i class="fa-solid fa-building"></i> Companies</a></li>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/users"><i class="fa-solid fa-users"></i> Users</a>
-                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/assign-manager"><i class="fa-solid fa-user-tie"></i> Assign Manager</a></li>
-
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/users"><i class="fa-solid fa-users"></i> Users</a></li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown-admin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
